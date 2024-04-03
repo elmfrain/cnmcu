@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "cnmcu",
+	"version": "0.0.1-MC1.20.4",
+	"name": "CodeNode Microcontrollers",
+	"description": "Adds redstone microcontrollers powered by 6502 processors. Automate your projects in 6502 assembly!",
+	"authors": [
+		"elmfer"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "GNU GPLv3",
+	"icon": "assets/cnmcu/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.elmfer.cnmcu.CodeNodeMicrocontrollers"
+		],
+		"client": [
+			"com.elmfer.cnmcu.client.CodeNodeMicrocontrollersClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.15.6",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
