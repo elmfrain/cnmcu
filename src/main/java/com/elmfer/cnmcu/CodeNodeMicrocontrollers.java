@@ -1,10 +1,13 @@
 package com.elmfer.cnmcu;
 
-import net.fabricmc.api.ModInitializer;
-import net.minecraft.util.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.elmfer.cnmcu.blockentities.BlockEntities;
+import com.elmfer.cnmcu.blocks.Blocks;
+
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.util.Identifier;
 
 public class CodeNodeMicrocontrollers implements ModInitializer {
 
@@ -14,8 +17,8 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
-        LOGGER.info("Hello Fabric world!");
+        Blocks.init();
+        BlockEntities.init();
     }
     
     public static Identifier id(String path) {

@@ -3,7 +3,10 @@ package com.elmfer.cnmcu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.elmfer.cnmcu.model.CodeNodeModelLoadingPlugin;
+
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 
 public class CodeNodeMicrocontrollersClient implements ClientModInitializer {
 
@@ -11,6 +14,6 @@ public class CodeNodeMicrocontrollersClient implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
-        CodeNodeMicrocontrollers.LOGGER.info("Hello Fabric world! (Client)");
+        ModelLoadingPlugin.register(new CodeNodeModelLoadingPlugin());
     }
 }
