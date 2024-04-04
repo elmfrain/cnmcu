@@ -19,7 +19,7 @@
 			"com.elmfer.cnmcu.CodeNodeMicrocontrollers"
 		],
 		"client": [
-			"com.elmfer.cnmcu.client.CodeNodeMicrocontrollersClient"
+			"com.elmfer.cnmcu.CodeNodeMicrocontrollersClient"
 		]
 	},
 	"depends": {
