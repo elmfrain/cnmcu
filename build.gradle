@@ -57,6 +57,20 @@ jar {
 	}
 }
 
+sourceSets.main.java {
+	srcDir "src/main/cpp"
+}
+
+compileJava {
+	options.compilerArgs += ["-h", file("src/main/cpp/bridge")]
+}
+
+clean.doFirst {
+	delete fileTree("src/main/cpp/bridge") {
+		include "*.h"
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
