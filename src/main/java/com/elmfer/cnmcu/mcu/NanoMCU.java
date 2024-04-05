@@ -83,12 +83,28 @@ public class NanoMCU extends StrongNativeObject {
     }
     
     public void deleteNative() {
-        deleteMCU(getNativePtr());
-        
         cpu.invalidateNativeObject();
         gpio.invalidateNativeObject();
         ram.invalidateNativeObject();
         rom.invalidateNativeObject();
+        
+        deleteMCU(getNativePtr());
+    }
+    
+    public MOS6502 getCPU() {
+        return cpu;
+    }
+    
+    public CNGPIO getGPIO() {
+        return gpio;
+    }
+    
+    public CNRAM getRAM() {
+        return ram;
+    }
+    
+    public CNROM getROM() {
+        return rom;
     }
     
     private static native long createMCU();
