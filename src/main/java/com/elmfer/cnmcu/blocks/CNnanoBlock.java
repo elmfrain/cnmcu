@@ -1,5 +1,6 @@
 package com.elmfer.cnmcu.blocks;
 
+import com.elmfer.cnmcu.blockentities.BlockEntities;
 import com.elmfer.cnmcu.blockentities.CNnanoBlockEntity;
 import com.mojang.serialization.MapCodec;
 
@@ -10,6 +11,8 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -68,6 +71,38 @@ public class CNnanoBlock extends BlockWithEntity {
     @Override
     public boolean emitsRedstonePower(BlockState state) {
         return true;
+    }
+
+    @Override
+    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+
+        if (!(blockEntity instanceof CNnanoBlockEntity))
+            return 0;
+
+        CNnanoBlockEntity entity = (CNnanoBlockEntity) blockEntity;
+
+        switch (direction) {
+        case WEST:
+            return entity.mcu.leftOutput;
+        case NORTH:
+            return entity.mcu.frontOutput;
+        case EAST:
+            return entity.mcu.rightOutput;
+        case SOUTH:
+            return entity.mcu.backOutput;
+        default:
+            return 0;
+        }
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
+            BlockEntityType<T> type) {
+        if (world.isClient)
+            return null;
+
+        return CNnanoBlock.validateTicker(type, BlockEntities.CN_NANO, CNnanoBlockEntity::tick);
     }
 
     @Override

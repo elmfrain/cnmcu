@@ -23,7 +23,7 @@ public class CNROM extends WeakNativeObject {
         setNativePtr(ptr);
         
         size = size(getNativePtr());
-        writeProtected = isWriteProtected(getNativePtr());
+        writeProtected = false; //isWriteProtected(getNativePtr());
     }
     
     public long getSize() {

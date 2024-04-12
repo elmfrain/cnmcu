@@ -15,5 +15,7 @@ public class CodeNodeMicrocontrollersClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModelLoadingPlugin.register(new CodeNodeModelLoadingPlugin());
+        
+        
     }
 }
