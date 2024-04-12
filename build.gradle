@@ -1,10 +1,12 @@
 plugins {
 	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
+//	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 version = project.mod_version
 group = project.maven_group
+def isProduction = System.getenv("PRODUCTION") != null ? true : false;
 
 base {
 	archivesName = project.archives_base_name
@@ -16,6 +18,12 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
+}
+
+configurations {
+	implementation.extendsFrom lib
+	api.extendsFrom lib
 }
 
 dependencies {
@@ -27,6 +35,11 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
+//	lib "io.github.spair:imgui-java-binding:${project.imgui_version}"
+//	lib "io.github.spair:imgui-java-lwjgl3:${project.imgui_version}"
+//
+//	lib "io.github.spair:imgui-java-natives-windows:${project.imgui_version}"
+//	lib "io.github.spair:imgui-java-natives-linux:${project.imgui_version}"
 }
 
 processResources {
@@ -70,6 +83,29 @@ clean.doFirst {
 		include "*.h"
 	}
 }
+
+task compileNatives {
+	group = "Build"
+	description = "Compile C++ files of this mod into a shared library"
+
+	dependsOn compileJava
+	
+	doLast {
+		exec {
+			commandLine "sh", "-c", "mkdir -p build/natives && cd build/natives && cmake ../../src/main/cpp && make"
+		}
+		
+		if(!isProduction) {
+			copy {
+				from "build/natives"
+				into "run/cnmcu/natives"
+				include "lib*.*"
+			}
+		}
+	}
+}
+
+//tasks.build.dependsOn tasks.shadowJar
 
 // configure the maven publication
 publishing {
