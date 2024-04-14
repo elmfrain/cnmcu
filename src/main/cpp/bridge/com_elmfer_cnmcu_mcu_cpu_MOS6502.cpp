@@ -1,111 +1,104 @@
 #include <com_elmfer_cnmcu_mcu_cpu_MOS6502.h>
 
-#include <mos6502.h>
+//@line:77
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    NMI
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_NMI
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    cpu->NMI();
+        #include "mos6502.h"
+    JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_NMI(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:81
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->NMI();
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    IRQ
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_IRQ
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    cpu->IRQ();
+JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_IRQ(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:86
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->IRQ();
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    Reset
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_Reset
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    cpu->Reset();
+JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_Reset(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:91
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->Reset();
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetPC
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetPC
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetPC());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetPC(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:96
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetPC());
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetS
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetS
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetS());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetS(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:101
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetS());
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetP
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetP
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetP());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetP(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:106
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetP());
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetA
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetA
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetA());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetA(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:111
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetA());
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetX
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetX
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetX());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetX(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:116
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetX());
+    
+
 }
 
-/*
- * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
- * Method:    GetY
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetY
-(JNIEnv*, jclass, jlong cpuId)
-{
-    mos6502* cpu = reinterpret_cast<mos6502*>(cpuId);
-    return static_cast<jint>(cpu->GetY());
+JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetY(JNIEnv* env, jclass clazz, jlong ptr) {
+
+
+//@line:121
+
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetY());
+    
+
 }
+
