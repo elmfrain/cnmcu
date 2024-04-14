@@ -13,14 +13,13 @@ set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
 find_package(JNI REQUIRED)
 
+file(GLOB JNI_BRIDGE_SOURCES "bridge/*.cpp")
+
 set(PROJECT_SOURCES 
   cnmcu/mos6502.cpp
   cnmcu/Nano.cpp
 
-  bridge/com_elmfer_cnmcu_mcu_cpu_MOS6502.cpp
-  bridge/com_elmfer_cnmcu_mcu_NanoMCU.cpp
-  bridge/com_elmfer_cnmcu_mcu_modules_CNRAM.cpp
-  bridge/com_elmfer_cnmcu_mcu_modules_CNROM.cpp
+  ${JNI_BRIDGE_SOURCES}
   bridge/cnmcuJava.cpp
 )
 
