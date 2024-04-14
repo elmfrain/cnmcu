@@ -1,12 +1,18 @@
+import tools.elmfer.GenNativeSources
+import tools.elmfer.CompileNatives
+
 plugins {
 	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
-//	id "com.github.johnrengelman.shadow" version "8.1.1"
+	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 version = project.mod_version
 group = project.maven_group
-def isProduction = System.getenv("PRODUCTION") != null ? true : false;
+
+ext {
+	production = System.getenv("PRODUCTION") != null ? true : false;
+}
 
 base {
 	archivesName = project.archives_base_name
@@ -22,8 +28,7 @@ repositories {
 }
 
 configurations {
-	implementation.extendsFrom lib
-	api.extendsFrom lib
+	shadow
 }
 
 dependencies {
@@ -35,11 +40,11 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
-//	lib "io.github.spair:imgui-java-binding:${project.imgui_version}"
-//	lib "io.github.spair:imgui-java-lwjgl3:${project.imgui_version}"
-//
-//	lib "io.github.spair:imgui-java-natives-windows:${project.imgui_version}"
-//	lib "io.github.spair:imgui-java-natives-linux:${project.imgui_version}"
+    shadow "io.github.spair:imgui-java-binding:${project.imgui_version}"
+    shadow "io.github.spair:imgui-java-lwjgl3:${project.imgui_version}"
+    
+    shadow "io.github.spair:imgui-java-natives-windows:${project.imgui_version}"
+    shadow "io.github.spair:imgui-java-natives-linux:${project.imgui_version}"
 }
 
 processResources {
@@ -74,38 +79,33 @@ sourceSets.main.java {
 	srcDir "src/main/cpp"
 }
 
-compileJava {
-	options.compilerArgs += ["-h", file("src/main/cpp/bridge")]
-}
-
 clean.doFirst {
 	delete fileTree("src/main/cpp/bridge") {
 		include "*.h"
 	}
 }
 
-task compileNatives {
-	group = "Build"
-	description = "Compile C++ files of this mod into a shared library"
-
-	dependsOn compileJava
-	
-	doLast {
-		exec {
-			commandLine "sh", "-c", "mkdir -p build/natives && cd build/natives && cmake ../../src/main/cpp && make"
-		}
-		
-		if(!isProduction) {
-			copy {
-				from "build/natives"
-				into "run/cnmcu/natives"
-				include "lib*.*"
-			}
-		}
-	}
+shadowJar {
+	configurations = [project.configurations.shadow]
 }
 
-//tasks.build.dependsOn tasks.shadowJar
+tasks.register("genNativeSources", GenNativeSources) {
+	it.dependsOn assemble
+	
+	sourceDir "src/main/java"
+	bridgeDir "src/main/cpp/bridge"
+	
+}
+
+tasks.register("compileNatives", CompileNatives) {
+	it.dependsOn genNativeSources
+	
+	sourceDir "src/main/cpp"
+	buildDir "build/natives"
+	targetDir "run/cnmcu/natives"
+}
+
+tasks.build.dependsOn tasks.shadowJar
 
 // configure the maven publication
 publishing {
