@@ -72,14 +72,54 @@ public class MOS6502 extends WeakNativeObject {
         return GetY(getNativePtr());
     }
     
-    private static native void NMI(long ptr);
-    private static native void IRQ(long ptr);
-    private static native void Reset(long ptr);
+    // @formatter:off
     
-    private static native int GetPC(long ptr);
-    private static native int GetS(long ptr);
-    private static native int GetP(long ptr);
-    private static native int GetA(long ptr);
-    private static native int GetX(long ptr);
-    private static native int GetY(long ptr);
+    /*JNI
+        #include "mos6502.h"
+    */
+    
+    private static native void NMI(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->NMI();
+    */
+    
+    private static native void IRQ(long ptr);/*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->IRQ();
+    */
+    
+    private static native void Reset(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->Reset();
+    */ 
+    
+    private static native int GetPC(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetPC());
+    */
+    
+    private static native int GetS(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetS());
+    */
+    
+    private static native int GetP(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetP());
+    */
+    
+    private static native int GetA(long ptr);/*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetA());
+    */
+
+    private static native int GetX(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetX());
+    */
+    
+    private static native int GetY(long ptr); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        return static_cast<jint>(cpu->GetY());
+    */
 }

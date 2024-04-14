@@ -10,7 +10,7 @@ import com.elmfer.cnmcu.cpp.WeakNativeObject;
  * object is deleted.
  */
 public class CNRAM extends WeakNativeObject {
-
+    
     private final long size;
     
     /**
@@ -48,8 +48,35 @@ public class CNRAM extends WeakNativeObject {
         write(getNativePtr(), address, value);
     }
     
-    private static native long size(long ptr);
-    private static native ByteBuffer data(long ptr);
-    private static native byte read(long ptr, int address);
-    private static native void write(long ptr, int address, byte value);
+    // @formatter:off
+    
+    /*JNI
+         #include "cnmcuJava.h"
+         #include "Nano.hpp"
+     */
+    
+    private static native long size(long ptr); /*
+        return static_cast<jlong>(CodeNodeNano::RAM_SIZE);
+    */
+    
+    private static native ByteBuffer data(long ptr); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        CNRAM<CodeNodeNano::RAM_SIZE>& ram = nano->RAM();
+        return env->NewDirectByteBuffer(ram.data(), CodeNodeNano::RAM_SIZE);
+    */
+    
+    private static native byte read(long ptr, int address); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        CNRAM<CodeNodeNano::RAM_SIZE>& ram = nano->RAM();
+        uint16_t addr = static_cast<uint16_t>(address);
+        return static_cast<jbyte>(ram.read(addr));
+    */
+    
+    private static native void write(long ptr, int address, byte value); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        CNRAM<CodeNodeNano::RAM_SIZE>& ram = nano->RAM();
+        uint16_t addr = static_cast<uint16_t>(address);
+        uint8_t val = static_cast<uint8_t>(value);
+        ram.write(addr, val);
+    */
 }
