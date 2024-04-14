@@ -2,6 +2,7 @@ package com.elmfer.cnmcu.blocks;
 
 import com.elmfer.cnmcu.blockentities.BlockEntities;
 import com.elmfer.cnmcu.blockentities.CNnanoBlockEntity;
+import com.elmfer.cnmcu.ui.IDEScreen;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.Block;
@@ -13,6 +14,7 @@ import net.minecraft.block.SideShapeType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -113,8 +115,12 @@ public class CNnanoBlock extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
-
-        return ActionResult.PASS;
+        if (!world.isClient)
+            return ActionResult.PASS;
+        
+        MinecraftClient.getInstance().setScreen(new IDEScreen());
+        
+        return ActionResult.SUCCESS;
     }
 
     @Override

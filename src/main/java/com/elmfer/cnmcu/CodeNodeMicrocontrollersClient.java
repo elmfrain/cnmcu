@@ -16,6 +16,6 @@ public class CodeNodeMicrocontrollersClient implements ClientModInitializer {
     public void onInitializeClient() {
         ModelLoadingPlugin.register(new CodeNodeModelLoadingPlugin());
         
-        
+        EventHandler.registerClientEventHandlers();
     }
 }
