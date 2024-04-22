@@ -1,6 +1,10 @@
 package com.elmfer.cnmcu;
 
+import com.elmfer.cnmcu.ui.UIRender;
+
 import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -21,12 +25,11 @@ public class EventHandler {
     }
     
     private static void onStartRenderWorld(WorldRenderContext context) {
-        
+        UIRender.newFrame();
     }
     
     private static void onEndRenderWorld(WorldRenderContext context) {
-//        ImGui.render();
-//        IMGUI_GL3.renderDrawData(ImGui.getDrawData());
+        UIRender.renderBatch();
     }
     
     private static void onClientStarted(MinecraftClient client) {
@@ -34,7 +37,11 @@ public class EventHandler {
         
         IMGUI_GLFW.init(client.getWindow().getHandle(), true);
         IMGUI_GL3.init("#version 150");
-        ImGui.getIO().setDisplaySize(client.getWindow().getWidth(), client.getWindow().getHeight());
+        
+        ImGuiIO io = ImGui.getIO();
+        
+        io.setDisplaySize(client.getWindow().getWidth(), client.getWindow().getHeight());
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
     }
     
     private static void onClientStopping(MinecraftClient client) {
