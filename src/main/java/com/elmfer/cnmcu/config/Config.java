@@ -34,6 +34,9 @@ public class Config {
         }
     }
 
+    private Config() {
+    }
+    
     public static boolean isFirstTimeUse() {
         return firstTimeUse;
     }
