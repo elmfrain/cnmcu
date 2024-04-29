@@ -12,7 +12,7 @@ import net.minecraft.registry.Registry;
 
 public class Blocks {
     public static final CNnanoBlock CN_NANO_BLOCK = new CNnanoBlock(FabricBlockSettings.create().strength(0.5f));
-    
+
     public static <T extends Block> T register(String name, T block) {
         T b = Registry.register(Registries.BLOCK, CodeNodeMicrocontrollers.id(name), block);
         BlockItem item = new BlockItem(b, new FabricItemSettings());
@@ -20,9 +20,8 @@ public class Blocks {
         Registry.register(Registries.ITEM, CodeNodeMicrocontrollers.id(name), item);
         return b;
     }
-    
+
     public static void init() {
         register("nano", CN_NANO_BLOCK);
     }
-
 }
