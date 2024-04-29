@@ -43,6 +43,7 @@ public class EventHandler {
         
         ImGuiIO io = ImGui.getIO();
         
+        io.setIniFilename(CodeNodeMicrocontrollers.MOD_ID + "/imgui.ini");
         io.setDisplaySize(client.getWindow().getWidth(), client.getWindow().getHeight());
         io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
     }
