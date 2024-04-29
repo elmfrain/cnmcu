@@ -6,12 +6,16 @@ import com.elmfer.cnmcu.mcu.modules.CNGPIO;
 import com.elmfer.cnmcu.mcu.modules.CNRAM;
 import com.elmfer.cnmcu.mcu.modules.CNROM;
 
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.Direction;
+
 public class NanoMCU extends StrongNativeObject {
     public int frontInput, rightInput, backInput, leftInput;
     public int frontOutput, rightOutput, backOutput, leftOutput;
 
     private int[] inputs = new int[4];
     private int[] outputs = new int[4];
+    private boolean frontOutputChanged, rightOutputChanged, backOutputChanged, leftOutputChanged;
 
     private MOS6502 cpu;
     private CNGPIO gpio;
@@ -35,17 +39,38 @@ public class NanoMCU extends StrongNativeObject {
 
         tick(getNativePtr(), inputs, outputs);
 
+        frontOutputChanged = frontOutput != outputs[0];
+        rightOutputChanged = rightOutput != outputs[1];
+        backOutputChanged = backOutput != outputs[2];
+        leftOutputChanged = leftOutput != outputs[3];
+        
         frontOutput = outputs[0];
         rightOutput = outputs[1];
         backOutput = outputs[2];
         leftOutput = outputs[3];
     }
 
+    public boolean outputHasChanged(Direction direction) {
+        switch (direction) {
+        case NORTH:
+            return frontOutputChanged;
+        case EAST:
+            return rightOutputChanged;
+        case SOUTH:
+            return backOutputChanged;
+        case WEST:
+            return leftOutputChanged;
+        default:
+            return false;
+        }
+    }
+    
     public void cycle() {
         cycle(getNativePtr());
     }
 
     public void reset() {
+        frontInput = rightInput = backInput = leftInput = 0;
         reset(getNativePtr());
     }
 
@@ -104,6 +129,40 @@ public class NanoMCU extends StrongNativeObject {
 
     public CNROM getROM() {
         return rom;
+    }
+    
+    public void writeNbt(NbtCompound nbt) {
+        NbtCompound mcuNbt = new NbtCompound();
+        
+        mcuNbt.putInt("frontOutput", frontOutput);
+        mcuNbt.putInt("rightOutput", rightOutput);
+        mcuNbt.putInt("backOutput", backOutput);
+        mcuNbt.putInt("leftOutput", leftOutput);
+        mcuNbt.putBoolean("powered", isPowered());
+        mcuNbt.putBoolean("clockPaused", isClockPaused());
+        mcuNbt.putLong("numCycles", numCycles());
+        rom.writeNbt(mcuNbt);
+        ram.writeNbt(mcuNbt);
+        gpio.writeNbt(mcuNbt);
+        cpu.writeNbt(mcuNbt);
+        
+        nbt.put("mcu", mcuNbt);
+    }
+    
+    public void readNbt(NbtCompound nbt) {
+        NbtCompound mcuNbt = nbt.getCompound("mcu");
+
+        frontOutput = mcuNbt.getInt("frontOutput");
+        rightOutput = mcuNbt.getInt("rightOutput");
+        backOutput = mcuNbt.getInt("backOutput");
+        leftOutput = mcuNbt.getInt("leftOutput");
+        setPowered(mcuNbt.getBoolean("powered"));
+        setClockPause(mcuNbt.getBoolean("clockPaused"));
+        setNumCycles(getNativePtr(), mcuNbt.getLong("numCycles"));
+        rom.readNbt(mcuNbt);
+        ram.readNbt(mcuNbt);
+        gpio.readNbt(mcuNbt);
+        cpu.readNbt(mcuNbt);
     }
 
     // @formatter:off
@@ -185,6 +244,12 @@ public class NanoMCU extends StrongNativeObject {
     private static native long numCycles(long ptr); /*
         CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
         return static_cast<jlong>(nano->numCycles());
+    */
+    
+    private static native void setNumCycles(long ptr, long cycles); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        uint64_t numCycles = static_cast<uint64_t>(cycles);
+        nano->setNumCycles(numCycles);
     */
     
     private static native int busAddress(long ptr); /*

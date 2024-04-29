@@ -13,12 +13,20 @@
 class cnmcuJava
 {
 public:
+    static JNIEnv* env;
     static JavaVM* vm;
 
     static jclass NullPointerException;
     static jclass IllegalArgumentException;
     static jclass IllegalStateException;
     static jclass RuntimeException;
+
+    static jclass System;
+    static jfieldID System_out_id;
+    static jobject System_out;
+
+    static jclass PrintStream;
+    static jmethodID PrintStream_print;
 
     static jclass NanoMCU;
 
@@ -37,4 +45,5 @@ public:
     static bool initialized;
 
     static void init(JNIEnv* env);
+    static void printf(const char* format, ...);
 };

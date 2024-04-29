@@ -1,8 +1,9 @@
 package com.elmfer.cnmcu.blocks;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.elmfer.cnmcu.blockentities.BlockEntities;
 import com.elmfer.cnmcu.blockentities.CNnanoBlockEntity;
-import com.elmfer.cnmcu.ui.IDEScreen;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.Block;
@@ -14,9 +15,9 @@ import net.minecraft.block.SideShapeType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -83,28 +84,35 @@ public class CNnanoBlock extends BlockWithEntity {
             return 0;
 
         CNnanoBlockEntity entity = (CNnanoBlockEntity) blockEntity;
+        
+        if (entity.mcu == null || !entity.mcu.isPowered())
+            return 0;
+        
+        Direction blockDir = state.get(FACING);
+        Direction localDir = getLocalDirection(blockDir, direction);
 
-        switch (direction) {
-        case WEST:
-            return entity.mcu.leftOutput;
-        case NORTH:
-            return entity.mcu.frontOutput;
+        switch (localDir) {
         case EAST:
             return entity.mcu.rightOutput;
         case SOUTH:
             return entity.mcu.backOutput;
+        case WEST:
+            return entity.mcu.leftOutput;
+        case NORTH:
+            return entity.mcu.frontOutput;
         default:
             return 0;
         }
     }
 
+    @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
             BlockEntityType<T> type) {
         if (world.isClient)
             return null;
 
-        return CNnanoBlock.validateTicker(type, BlockEntities.CN_NANO, CNnanoBlockEntity::tick);
+        return CNnanoBlock.validateTicker(type, BlockEntities.CN_NANO, world.isClient ? null : CNnanoBlockEntity::tick);
     }
 
     @Override
@@ -115,16 +123,44 @@ public class CNnanoBlock extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
-        if (!world.isClient)
-            return ActionResult.PASS;
-        
-        MinecraftClient.getInstance().setScreen(new IDEScreen());
-        
+        if (!world.isClient) {
+            NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
+
+            if (screenHandlerFactory != null)
+                player.openHandledScreen(screenHandlerFactory);
+        }
+
         return ActionResult.SUCCESS;
     }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return VoxelShapes.cuboid(0.0, 0.0, 0.0, 1.0, 0.125, 1.0);
+    }
+    
+    public static Direction getGlobalDirection(Direction facing, Direction direction) {
+        switch (facing) {
+        case EAST:
+            return direction.rotateYClockwise();
+        case SOUTH:
+            return direction.getOpposite();
+        case WEST:
+            return direction.rotateYCounterclockwise();
+        default:
+            return direction;
+        }
+    }
+    
+    public static Direction getLocalDirection(Direction facing, Direction direction) {
+        switch (facing) {
+        case WEST:
+            return direction.rotateYCounterclockwise();
+        case NORTH:
+            return direction.getOpposite();
+        case EAST:
+            return direction.rotateYClockwise();
+        default:
+            return direction;
+        }
     }
 }

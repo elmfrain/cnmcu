@@ -28,7 +28,7 @@ void CodeNodeNano::tick()
 
 void CodeNodeNano::cycle()
 {
-    if(!poweredOn || clockPaused)
+    if(!poweredOn || !clockPaused)
         return;
 
     gpio.tickInterrupts();
@@ -36,6 +36,7 @@ void CodeNodeNano::cycle()
 
     currentInstance = this;
     cpu.Run(1, cyclesCounter);
+    cyclesTarget = cyclesCounter;
 }
 
 void CodeNodeNano::reset()

@@ -79,6 +79,14 @@ JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetX
 JNIEXPORT jint JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_GetY
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_elmfer_cnmcu_mcu_cpu_MOS6502
+ * Method:    SetState
+ * Signature: (J[I)V
+ */
+JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_cpu_MOS6502_SetState
+  (JNIEnv *, jclass, jlong, jintArray);
+
 #ifdef __cplusplus
 }
 #endif

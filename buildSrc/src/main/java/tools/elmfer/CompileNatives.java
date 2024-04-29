@@ -99,6 +99,7 @@ public class CompileNatives extends DefaultTask {
         String shellFlag = os.equals("windows") ? "/c" : "-c";
 
         ProcessBuilder builder = new ProcessBuilder(shell, shellFlag, command);
+        builder.redirectErrorStream(true);
         
         Process process = builder.start();
         

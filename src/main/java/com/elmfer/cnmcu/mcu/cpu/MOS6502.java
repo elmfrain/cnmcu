@@ -2,6 +2,8 @@ package com.elmfer.cnmcu.mcu.cpu;
 
 import com.elmfer.cnmcu.cpp.WeakNativeObject;
 
+import net.minecraft.nbt.NbtCompound;
+
 /**
  * Reference to a MOS 6502 CPU object
  * it is a weak reference, so it will be invalidated if the native
@@ -72,6 +74,30 @@ public class MOS6502 extends WeakNativeObject {
         return GetY(getNativePtr());
     }
     
+    public void writeNbt(NbtCompound nbt) {
+        assert isNativeObjectValid();
+
+        NbtCompound cpuNbt = new NbtCompound();
+        cpuNbt.putInt("pc", getPC());
+        cpuNbt.putInt("s", getS());
+        cpuNbt.putInt("p", getP());
+        cpuNbt.putInt("a", getA());
+        cpuNbt.putInt("x", getX());
+        cpuNbt.putInt("y", getY());
+        
+        nbt.put("mos6502", cpuNbt);
+    }
+    
+    public void readNbt(NbtCompound nbt) {
+        assert isNativeObjectValid();
+
+        NbtCompound state = nbt.getCompound("mos6502");
+        int[] stateArray = new int[] { state.getInt("pc"), state.getInt("s"), state.getInt("p"), state.getInt("a"),
+                state.getInt("x"), state.getInt("y") };
+
+        SetState(getNativePtr(), stateArray);
+    }
+    
     // @formatter:off
     
     /*JNI
@@ -121,5 +147,10 @@ public class MOS6502 extends WeakNativeObject {
     private static native int GetY(long ptr); /*
         mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
         return static_cast<jint>(cpu->GetY());
+    */
+    
+    private static native void SetState(long ptr, int state[]); /*
+        mos6502* cpu = reinterpret_cast<mos6502*>(ptr);
+        cpu->SetState(state);
     */
 }

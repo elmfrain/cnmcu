@@ -36,10 +36,13 @@ public class WeakNativeObject {
         nativePtr = 0;
         
         Method[] invalidators = INVALIDATORS.get(getClass());
-        Object[] args = { nativePtr };
+        
+        if (invalidators == null)
+            return;
+        
         for (Method invalidator : invalidators) {
             try {
-                invalidator.invoke(this, args);
+                invalidator.invoke(this);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -75,7 +78,7 @@ public class WeakNativeObject {
         ArrayList<Method> invalidators = new ArrayList<>();
         for (Class<?> c = clazz; c != WeakNativeObject.class; c = c.getSuperclass()) {
             try {
-                Method invalidator = c.getDeclaredMethod("invalidateNative", long.class);
+                Method invalidator = c.getDeclaredMethod("invalidateNative");
                 invalidator.setAccessible(true);
                 invalidators.add(invalidator);
             } catch (IllegalArgumentException | NoClassDefFoundError | SecurityException e) {

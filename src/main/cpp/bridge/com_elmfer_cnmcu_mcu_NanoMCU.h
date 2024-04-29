@@ -89,6 +89,14 @@ JNIEXPORT jlong JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_numCycles
 
 /*
  * Class:     com_elmfer_cnmcu_mcu_NanoMCU
+ * Method:    setNumCycles
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_setNumCycles
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_elmfer_cnmcu_mcu_NanoMCU
  * Method:    busAddress
  * Signature: (J)I
  */

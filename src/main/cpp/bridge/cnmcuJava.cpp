@@ -18,13 +18,25 @@
     (var) = env->GetFieldID(clazz, name, sig); \
     CHECK_FOR_EXCEPTION(); \
 
+#define GET_STATIC_FIELD_ID(var, clazz, name, sig) \
+    (var) = env->GetStaticFieldID(clazz, name, sig); \
+    CHECK_FOR_EXCEPTION(); \
 
+
+JNIEnv* cnmcuJava::env;
 JavaVM* cnmcuJava::vm;
 
 jclass cnmcuJava::NullPointerException;
 jclass cnmcuJava::IllegalArgumentException;
 jclass cnmcuJava::IllegalStateException;
 jclass cnmcuJava::RuntimeException;
+
+jclass cnmcuJava::System;
+jfieldID cnmcuJava::System_out_id;
+jobject cnmcuJava::System_out;
+
+jclass cnmcuJava::PrintStream;
+jmethodID cnmcuJava::PrintStream_print;
 
 jclass cnmcuJava::NanoMCU;
 
@@ -47,12 +59,20 @@ void cnmcuJava::init(JNIEnv* env)
     if(initialized)
         return;
 
+    cnmcuJava::env = env;
     env->GetJavaVM(&vm);
 
     GET_CLASS(NullPointerException, "java/lang/NullPointerException");
     GET_CLASS(IllegalArgumentException, "java/lang/IllegalArgumentException");
     GET_CLASS(IllegalStateException, "java/lang/IllegalStateException");
     GET_CLASS(RuntimeException, "java/lang/RuntimeException");
+
+    GET_CLASS(System, "java/lang/System");
+    GET_STATIC_FIELD_ID(System_out_id, System, "out", "Ljava/io/PrintStream;");
+    System_out = env->GetStaticObjectField(System, System_out_id);
+
+    GET_CLASS(PrintStream, "java/io/PrintStream");
+    GET_METHOD_ID(PrintStream_print, PrintStream, "print", "(Ljava/lang/String;)V");
 
     GET_CLASS(NanoMCU, "com/elmfer/cnmcu/mcu/NanoMCU");
 
@@ -69,4 +89,22 @@ void cnmcuJava::init(JNIEnv* env)
     GET_METHOD_ID(CNROM_init, CNROM, "<init>", "(J)V");
 
     initialized = true;
+}
+
+void cnmcuJava::printf(const char* format, ...)
+{
+    if(!initialized)
+        return;
+
+    va_list args;
+    va_start(args, format);
+
+    char buffer[512] = {0};
+    vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+
+    va_end(args);
+
+    jstring str = env->NewStringUTF(buffer);
+    env->CallVoidMethod(System_out, PrintStream_print, str);
+    env->DeleteLocalRef(str);
 }

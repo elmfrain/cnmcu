@@ -1061,6 +1061,16 @@ uint8_t mos6502::GetResetY()
     return reset_Y;
 }
 
+void mos6502::SetState(int state[])
+{
+    pc = static_cast<uint16_t>(state[0]);
+    sp = static_cast<uint8_t>(state[1]);
+    status = static_cast<uint8_t>(state[2]);
+    A = static_cast<uint8_t>(state[3]);
+    X = static_cast<uint8_t>(state[4]);
+    Y = static_cast<uint8_t>(state[5]);
+}
+
 void mos6502::Op_ILLEGAL(uint16_t src)
 {
 	illegalOpcode = true;
