@@ -1,5 +1,6 @@
 package com.elmfer.cnmcu;
 
+import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.ui.UIRender;
 
 import imgui.ImGui;
@@ -26,6 +27,8 @@ public class EventHandler {
     
     private static void onStartRenderWorld(WorldRenderContext context) {
         UIRender.newFrame();
+        
+        EventHandler.IMGUI_GLFW.newFrame();
     }
     
     private static void onEndRenderWorld(WorldRenderContext context) {
@@ -45,6 +48,7 @@ public class EventHandler {
     }
     
     private static void onClientStopping(MinecraftClient client) {
-        // Do something when the client is stopping
+        Toolchain.saveConfig();
+        Toolchain.waitForSave();
     }
 }
