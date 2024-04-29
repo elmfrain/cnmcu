@@ -39,10 +39,13 @@ public class StrongNativeObject {
         }
         
         Method[] finalizers = FINALIZERS.get(getClass());
-        Object[] args = {nativePtr};
+        
+        if (finalizers == null)
+            throw new RuntimeException("No finalizers found for class " + getClass().getName());
+        
         for (Method finalizer : finalizers) {
             try {
-                finalizer.invoke(this, args);
+                finalizer.invoke(this);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -73,7 +76,7 @@ public class StrongNativeObject {
         ArrayList<Method> finalizers = new ArrayList<>();
         for (Class<?> c = clazz; c != StrongNativeObject.class; c = c.getSuperclass()) {
             try {
-                Method finalizer = c.getDeclaredMethod("deleteNative", long.class);
+                Method finalizer = c.getDeclaredMethod("deleteNative");
                 finalizer.setAccessible(true);
                 finalizers.add(finalizer);
             } catch (IllegalArgumentException | NoClassDefFoundError | SecurityException e) {

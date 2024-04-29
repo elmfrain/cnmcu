@@ -28,6 +28,7 @@ public:
     void resumeClock() { clockPaused = false; }
     bool isClockPaused() const { return clockPaused; }
     uint64_t numCycles() const { return cyclesCounter; }
+    void setNumCycles(uint64_t cycles) { cyclesCounter = cycles; cyclesTarget = cycles;}
 
     uint16_t busAddress() const { return m_busAddress; }
     uint8_t busData() const { return m_busData; }
