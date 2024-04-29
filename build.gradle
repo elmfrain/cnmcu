@@ -45,6 +45,7 @@ dependencies {
     
     shadow "io.github.spair:imgui-java-natives-windows:${project.imgui_version}"
     shadow "io.github.spair:imgui-java-natives-linux:${project.imgui_version}"
+    shadow "io.github.spair:imgui-java-natives-macos:${project.imgui_version}"
 }
 
 processResources {
