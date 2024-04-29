@@ -19,7 +19,8 @@ public class GenNativeSources extends DefaultTask {
     private String bridgeDir;
     
     public GenNativeSources() {
-        classPath = getProject().file("build/classes/java/main").toString();
+        classPath = getProject().getConfigurations().getByName("runtimeClasspath").getAsPath() +
+                ":build/classes/java/main";
         
         this.setGroup(GROUP);
         this.setDescription(DESCRIPTION);
@@ -33,7 +34,7 @@ public class GenNativeSources extends DefaultTask {
         if (bridgeDir == null)
             throw new RuntimeException("You must specify bridge directory for generating native source files!");
         
-        NativeCodeGenerator srcGen = new NativeCodeGenerator();       
+        NativeCodeGenerator srcGen = new NativeCodeGenerator();     
         srcGen.generate(sourceDir, classPath, bridgeDir);
     }
 
