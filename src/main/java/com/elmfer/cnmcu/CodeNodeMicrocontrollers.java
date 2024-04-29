@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.elmfer.cnmcu.blockentities.BlockEntities;
 import com.elmfer.cnmcu.blocks.Blocks;
 import com.elmfer.cnmcu.cpp.NativesLoader;
+import com.elmfer.cnmcu.network.Packets;
+import com.elmfer.cnmcu.ui.handler.ScreenHandlers;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
@@ -23,6 +25,9 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
         
         Blocks.init();
         BlockEntities.init();
+        ScreenHandlers.init();
+        
+        Packets.initServerPackets();
     }
     
     public static Identifier id(String path) {
