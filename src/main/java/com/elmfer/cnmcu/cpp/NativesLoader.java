@@ -11,29 +11,34 @@ public class NativesLoader {
     public static final String NATIVES_PLATFORM = getPlatform();
     public static final String NATIVES_BITS = getBits();
     public static final String NATIVES_EXT = getExtension();
-    public static final String BINARIES_PATH =  CodeNodeMicrocontrollers.MOD_ID + "/natives";
-    
+    public static final String BINARIES_PATH = CodeNodeMicrocontrollers.MOD_ID + "/natives";
+
     private static boolean loaded = false;
-    
+
     public static void loadNatives() {
         if (loaded)
             return;
-        
+
         CodeNodeMicrocontrollers.LOGGER.info("Loading native library...");
-        
+
         if (NATIVES_OS.equals("unknown") || NATIVES_PLATFORM.equals("unknown") || NATIVES_BITS.equals("unknown"))
             throw new RuntimeException("Unable to use " + CodeNodeMicrocontrollers.MOD_NAME + " on this platform!");
 
-        String libName = CodeNodeMicrocontrollers.MOD_ID + "-" + NATIVES_OS + "-" + NATIVES_PLATFORM + NATIVES_BITS;
+        String libName = getBinaryFilename();
         String workingDir = System.getProperty("user.dir") + "/";
-        String libPath = workingDir + BINARIES_PATH + "/lib" + libName + NATIVES_EXT;
-        
+        String libPath = workingDir + BINARIES_PATH + "/" + libName;
+
         try {
             System.load(libPath);
             loaded = true;
         } catch (Exception e) {
             throw new RuntimeException("Failed to load native library: " + libPath, e);
         }
+    }
+
+    public static String getBinaryFilename() {
+        return "lib" + CodeNodeMicrocontrollers.MOD_ID + "-" + NATIVES_OS + "-" + NATIVES_PLATFORM + NATIVES_BITS
+                + NATIVES_EXT;
     }
 
     private static String getOS() {
@@ -72,7 +77,7 @@ public class NativesLoader {
 
         return "unknown";
     }
-    
+
     private static String getExtension() {
         if (NATIVES_OS.equals("windows"))
             return ".dll";
