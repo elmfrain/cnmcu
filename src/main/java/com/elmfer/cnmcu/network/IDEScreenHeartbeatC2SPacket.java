@@ -22,7 +22,9 @@ public class IDEScreenHeartbeatC2SPacket extends Packet.C2S {
     public static void recieve(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         UUID mcuId = buf.readUuid();
         
-        if (CNnanoBlockEntity.SCREEN_UPDATES.containsKey(mcuId))
-            CNnanoBlockEntity.SCREEN_UPDATES.get(mcuId).heartBeat(player.getUuid());
+        server.execute(() -> {
+            if (CNnanoBlockEntity.SCREEN_UPDATES.containsKey(mcuId))
+                CNnanoBlockEntity.SCREEN_UPDATES.get(mcuId).heartBeat(player.getUuid());
+        });
     }
 }
