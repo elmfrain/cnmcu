@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  Linux-Build:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,10 +36,10 @@ jobs:
       - name: Save Version
         run: ./gradlew saveVersion
 
-      - name: Build
+      - name: Build Mod
         run: ./gradlew clean build
 
-      - name: Publish (CurseForge/Modrinth/GitHub)
+      - name: Publish Mod (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           # modrinth-id: 
@@ -56,3 +56,6 @@ jobs:
           
           loaders: fabric
           game-versions: "${{ env.MINECRAFT_VERSION }}"
+
+      - name: Build Mod Natives
+        run: ./gradlew compileNatvies
