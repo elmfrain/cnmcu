@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  Linux-Build-Publish:
+  Build-Publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +32,11 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Save Version
-        run: ./gradlew saveVersion --console=plain
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          arguments: |
+            saveVersion
+            --console=plain
 
       - name: Build Mod
         run: ./gradlew clean build --console=plain
