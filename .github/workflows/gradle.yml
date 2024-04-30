@@ -59,7 +59,7 @@ jobs:
       - name: Save Version
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: compileNatvies --console=plain
+          arguments: compileNatives --console=plain
 
       - name: Upload Linux Binary
         uses: softprops/action-gh-release@v2
