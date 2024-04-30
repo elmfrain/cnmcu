@@ -1,5 +1,6 @@
 package com.elmfer.cnmcu;
 
+import com.elmfer.cnmcu.config.ModSetup;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.ui.UIRender;
 
@@ -43,7 +44,7 @@ public class EventHandler {
         
         ImGuiIO io = ImGui.getIO();
         
-        io.setIniFilename(CodeNodeMicrocontrollers.MOD_ID + "/imgui.ini");
+        io.setIniFilename(ModSetup.IMGUI_INI_FILE);
         io.setDisplaySize(client.getWindow().getWidth(), client.getWindow().getHeight());
         io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
     }
