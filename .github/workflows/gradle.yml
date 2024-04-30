@@ -58,7 +58,10 @@ jobs:
       - name: Upload Linux Binary
         uses: softprops/action-gh-release@v2
         with:
-          files: build/natives/libcnmcu*
+          files: |
+            build/natives/libcnmcu*
+            vasm/vasm6502_oldstyle-linux-x64
+            vasm/vobjdump-linux-x64
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
   WindowsNatives:
     runs-on: windows-latest
@@ -82,7 +85,11 @@ jobs:
       - name: Upload Windows Binary
         uses: softprops/action-gh-release@v2
         with:
-          files: build/natives/Release/libcnmcu*
+          files: |
+            build/natives/Release/libcnmcu*
+            vasm/vasm6502_oldstyle-windows-x64.exe
+            vasm/vobjdump-windows-x64.exe
+            vasm/cygwin1.dll
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
 
   MacOSNatives:
@@ -107,5 +114,8 @@ jobs:
       - name: Upload Macos Binary
         uses: softprops/action-gh-release@v2
         with:
-          files: build/natives/libcnmcu*
+          files: |
+            build/natives/libcnmcu*
+            vasm/vasm6502_oldstyle-macos-x64
+            vasm/vobjdump-macos-x64
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
