@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  Build-Publish:
+  Build-Publish-LinuxNatives:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,18 +28,15 @@ jobs:
           distribution: "temurin"
           java-version: 17
 
-      - name: Make Gradle Wrapper Executable
-        run: chmod +x ./gradlew
-
       - name: Save Version
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: |
-            saveVersion
-            --console=plain
+          arguments: saveVersion --console=plain
 
       - name: Build Mod
-        run: ./gradlew clean build --console=plain
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          arguments: build --console=plain
 
       - name: Publish Mod (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3
@@ -59,8 +56,10 @@ jobs:
           loaders: fabric
           game-versions: "${{ env.MINECRAFT_VERSION }}"
 
-      - name: Compile Natives
-        run: ./gradlew compileNatives --console=plain
+      - name: Save Version
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          arguments: compileNatvies --console=plain
 
       - name: Upload Linux Binary
         uses: softprops/action-gh-release@v2
