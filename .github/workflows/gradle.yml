@@ -1,0 +1,58 @@
+name: Publish on GitHub, CurseForge & Modrinth
+
+on: workflow_dispatch
+
+env:
+  MINECRAFT_VERSION: 1.20.4
+  JAVA_VERSION: 17
+  MOD_VERSION: 0.0.4a
+  MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
+  CURSEFORGE_TOKEN: ${{ secrets.PUBLISH_CURSEFORGE_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Enviornment Variables
+        run: env
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x ./gradlew
+
+      - name: Save Version
+        run: ./gradlew saveVersion
+
+      - name: Build
+        run: ./gradlew clean build
+
+      - name: Publish (CurseForge/Modrinth/GitHub)
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          # modrinth-id: 
+          # modrinth-token: ${{ env.MODRINTH_TOKEN }}
+
+          # curseforge-id: 
+          # curseforge-token: ${{ env.CURSEFORGE_TOKEN }}
+
+          github-token: ${{ env.GITHUB_TOKEN }}
+
+          name: "Parkour Recorder v${{ env.MOD_VERSION }} for Minecraft ${{ env.MINECRAFT_VERSION }}"
+          version: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
+          version-type: release
+          
+          loaders: fabric
+          game-versions: "${{ env.MINECRAFT_VERSION }}"
