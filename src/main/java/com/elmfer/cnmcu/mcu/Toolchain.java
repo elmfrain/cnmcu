@@ -55,8 +55,9 @@ public class Toolchain {
                 String shell = NativesLoader.NATIVES_OS.equals("windows") ? "cmd" : "sh";
                 String shellFlag = NativesLoader.NATIVES_OS.equals("windows") ? "/c" : "-c";
                 String buildCommand = getBuildCommand();
-                buildCommand = buildCommand.replaceAll("\\$\\{input\\}", codeFile.toPath().toAbsolutePath().toString());
-                buildCommand = buildCommand.replaceAll("\\$\\{output\\}", outputFile.toPath().toAbsolutePath().toString());
+                buildCommand = buildCommand.replaceAll("\\$\\{input\\}", '"' + codeFile.getAbsolutePath() + '"');
+                buildCommand = buildCommand.replaceAll("\\$\\{output\\}", '"' + outputFile.getAbsolutePath() + '"');
+                buildCommand = buildCommand.replaceAll("\\\\", "\\\\");
 
                 ProcessBuilder builder = new ProcessBuilder(shell, shellFlag, buildCommand);
                 builder.directory(new File(TOOLCHAIN_PATH));
