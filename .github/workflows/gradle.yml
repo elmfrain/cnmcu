@@ -52,7 +52,7 @@ jobs:
 
           name: "CodeNode Microcontrollers v${{ env.MOD_VERSION }} for Minecraft ${{ env.MINECRAFT_VERSION }}"
           version: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
-          version-type: release
+          version-type: alpha
           
           loaders: fabric
           game-versions: "${{ env.MINECRAFT_VERSION }}"
