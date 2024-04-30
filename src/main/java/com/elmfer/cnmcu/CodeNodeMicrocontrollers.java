@@ -24,7 +24,6 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
     @Override
     public void onInitialize() {
         ModSetup.createDirectories();
-        ModSetup.imguiIniFile();
         ModSetup.downloadNatives();
         
         NativesLoader.loadNatives();

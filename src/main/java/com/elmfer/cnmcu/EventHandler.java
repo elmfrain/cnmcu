@@ -37,6 +37,8 @@ public class EventHandler {
     }
     
     private static void onClientStarted(MinecraftClient client) {
+        ModSetup.imguiIniFile();
+        
         ImGui.createContext();
         
         IMGUI_GLFW.init(client.getWindow().getHandle(), true);
