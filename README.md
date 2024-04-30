@@ -14,6 +14,8 @@ A mod that adds mos6502 based microcontrollers to the Minecraft so you can autom
 
 Detailed documentation can be found in here: [CodeNode Microcontrollers Mod Documentation](https://elmfrain.github.io/code-node-docs/). This documentation contains examples and detailed information about the architecture of the microcontrollers.
 
+The instruction set of the 6502 can be referenced here: [Ultimate Commodore 64 Reference](https://www.pagetable.com/c64ref/6502)
+
 Within the mod, you can view quick references by clicking `Code Editor` > `Help` > `Documentation`.
 
 ![ScreenShot](./screenshots/Screenshot%20from%202024-04-09%2002-17-52.png)
