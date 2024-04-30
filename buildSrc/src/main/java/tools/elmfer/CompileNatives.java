@@ -55,8 +55,7 @@ public class CompileNatives extends DefaultTask {
         executeCommand("cmake --build " + absBuildDir + " --target " + cmakeTarget,
                 "Error compiling native source files!");
 
-        boolean inProduction = (Boolean) (getProject().hasProperty("production") ? getProject().property("production")
-                : false);
+        boolean inProduction = System.getenv("PRODUCTION") != null;
         if (!inProduction && targetDir != null)
             copyBinaries();
     }
