@@ -209,7 +209,7 @@ public class CNnanoBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
         
         public void removeListener(UUID playerUuid) {
-            listeners.remove(playerUuid);
+            listeners.get(playerUuid).shouldRemove = true;
         }
         
         public void heartBeat(UUID playerUuid) {
