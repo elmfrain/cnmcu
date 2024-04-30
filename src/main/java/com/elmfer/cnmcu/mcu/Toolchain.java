@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
@@ -41,6 +43,7 @@ public class Toolchain {
 
     public static CompletableFuture<byte[]> build(String code) {
         CompletableFuture<byte[]> future = new CompletableFuture<>();
+        final Path toolchainPath = Paths.get(TOOLCHAIN_PATH);
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -55,9 +58,10 @@ public class Toolchain {
                 String shell = NativesLoader.NATIVES_OS.equals("windows") ? "cmd" : "sh";
                 String shellFlag = NativesLoader.NATIVES_OS.equals("windows") ? "/c" : "-c";
                 String buildCommand = getBuildCommand();
-                buildCommand = buildCommand.replaceAll("\\$\\{input\\}", '"' + codeFile.getAbsolutePath() + '"');
-                buildCommand = buildCommand.replaceAll("\\$\\{output\\}", '"' + outputFile.getAbsolutePath() + '"');
-                buildCommand = buildCommand.replaceAll("\\\\", "\\\\");
+                buildCommand = buildCommand.replaceAll("\\$\\{input\\}",
+                        '"' + toolchainPath.relativize(codeFile.toPath()).toString() + '"');
+                buildCommand = buildCommand.replaceAll("\\$\\{output\\}",
+                        '"' + toolchainPath.relativize(outputFile.toPath()).toString() + '"');
 
                 ProcessBuilder builder = new ProcessBuilder(shell, shellFlag, buildCommand);
                 builder.directory(new File(TOOLCHAIN_PATH));
@@ -120,8 +124,7 @@ public class Toolchain {
         if (config.has("buildCommand"))
             return config.get("buildCommand").getAsString();
 
-        return NativesLoader.NATIVES_OS.equals("windows") ?
-                "vasm6502_oldstyle -Fbin -dotdir ${input} -o ${output}"
+        return NativesLoader.NATIVES_OS.equals("windows") ? "vasm6502_oldstyle -Fbin -dotdir ${input} -o ${output}"
                 : "./vasm6502_oldstyle -Fbin -dotdir ${input} -o ${output}";
     }
 
