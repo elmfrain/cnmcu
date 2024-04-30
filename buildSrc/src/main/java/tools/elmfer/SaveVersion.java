@@ -30,6 +30,10 @@ public class SaveVersion extends DefaultTask {
                         "\"version\": \"%s-%s\"", "version", "mc_version"),
                 new Entry("\"minecraft\":", ",",
                         "\"minecraft\": \"~%s\"", "mc_version")),
+        
+        new FileEntry("gradle.properties",
+                new Entry("mod_version=", "\n",
+                        "mod_version=%s", "version")),
     };
     // @formatter:on
 
@@ -40,8 +44,15 @@ public class SaveVersion extends DefaultTask {
 
     @TaskAction
     public void execute() throws Exception {
-        params.put("version", getProject().property("version").toString());
-        params.put("mc_version", getProject().property("minecraft_version").toString());
+        if(System.getenv("MINECRAFT_VERSION") != null)
+            params.put("mc_version", System.getenv("MINECRAFT_VERSION"));
+        else
+            params.put("mc_version", getProject().property("minecraft_version").toString());
+        
+        if(System.getenv("MOD_VERSION") != null)
+            params.put("version", System.getenv("MOD_VERSION"));
+        else
+            params.put("version", getProject().property("mod_version").toString());
 
         for (FileEntry file : files) {
             File f = getProject().file(file.path);
