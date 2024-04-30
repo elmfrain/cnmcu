@@ -27,14 +27,17 @@ public class CompileNatives extends DefaultTask {
     private String cmakeTarget;
     @Internal
     private String targetDir;
+    @Internal
+    private String buildType;
 
     private IOException copyError;
-    
+
     public CompileNatives() {
         this.setGroup("build");
         this.setDescription("Compiles native source files using CMake.");
 
         cmakeTarget = "cnmcu-natives";
+        buildType = "Release";
     }
 
     @TaskAction
@@ -49,15 +52,24 @@ public class CompileNatives extends DefaultTask {
 
         String absSourceDir = getProject().file(sourceDir).getAbsolutePath();
         String absBuildDir = getProject().file(buildDir).getAbsolutePath();
-        
-        executeCommand("cmake -S " + absSourceDir + " -B " + absBuildDir, "Error configuring CMake project!");
 
-        executeCommand("cmake --build " + absBuildDir + " --target " + cmakeTarget,
+        executeCommand("cmake -S " + absSourceDir + " -B " + absBuildDir + " -DCMAKE_BUILD_TYPE=" + buildType,
+                "Error configuring CMake project!");
+
+        executeCommand("cmake --build " + absBuildDir + " --target " + cmakeTarget + " --config " + buildType,
                 "Error compiling native source files!");
 
         boolean inProduction = System.getenv("PRODUCTION") != null;
         if (!inProduction && targetDir != null)
             copyBinaries();
+    }
+
+    public String getBuildType() {
+        return buildType;
+    }
+
+    public void setBuildType(String buildType) {
+        this.buildType = buildType;
     }
 
     public String getSourceDir() {
@@ -99,9 +111,9 @@ public class CompileNatives extends DefaultTask {
 
         ProcessBuilder builder = new ProcessBuilder(shell, shellFlag, command);
         builder.redirectErrorStream(true);
-        
+
         Process process = builder.start();
-        
+
         Thread outThread = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
@@ -112,7 +124,7 @@ public class CompileNatives extends DefaultTask {
             }
         });
         outThread.start();
-        
+
         int exitCode = process.waitFor();
         outThread.join();
 
@@ -127,7 +139,7 @@ public class CompileNatives extends DefaultTask {
     // quickly to aid in development
     private void copyBinaries() throws IOException {
         copyError = null;
-        
+
         Path targetPath = getProject().file(targetDir).toPath();
 
         Path buildDir = getProject().file(this.buildDir).toPath();
@@ -135,14 +147,14 @@ public class CompileNatives extends DefaultTask {
         Files.walk(buildDir).filter(LIBS_FILTER).forEach(source -> {
             try {
                 Path target = targetPath.resolve(buildDir.relativize(source));
-                
+
                 Files.createDirectories(target.getParent());
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 copyError = e;
             }
         });
-        
+
         if (copyError != null)
             throw copyError;
     }
