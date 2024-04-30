@@ -33,7 +33,7 @@ public class SaveVersion extends DefaultTask {
         
         new FileEntry("gradle.properties",
                 new Entry("mod_version=", "\n",
-                        "mod_version=%s", "version")),
+                        "mod_version=%s-%s", "version", "mc_version")),
     };
     // @formatter:on
 
