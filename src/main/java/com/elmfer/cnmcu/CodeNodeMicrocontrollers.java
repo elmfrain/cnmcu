@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.elmfer.cnmcu.blockentities.BlockEntities;
 import com.elmfer.cnmcu.blocks.Blocks;
+import com.elmfer.cnmcu.config.ModSetup;
 import com.elmfer.cnmcu.cpp.NativesLoader;
 import com.elmfer.cnmcu.network.Packets;
 import com.elmfer.cnmcu.ui.handler.ScreenHandlers;
@@ -16,11 +17,15 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
 
     public static final String MOD_NAME = "CodeNode Microcontrollers";
     public static final String MOD_ID = "cnmcu";
+    public static final String MOD_VERSION = "0.0.4a-1.20.4";
     
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     @Override
     public void onInitialize() {
+        ModSetup.createDirectories();
+        ModSetup.imguiIniFile();
+        
         NativesLoader.loadNatives();
         
         Blocks.init();
