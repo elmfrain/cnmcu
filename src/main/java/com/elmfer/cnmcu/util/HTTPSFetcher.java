@@ -7,6 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,20 +19,36 @@ public class HTTPSFetcher {
     private FetcherWorker worker;
     private byte[] contentData = null;
     private String stringData = null;
+    private final Map<String, String> headers = new HashMap<>();
 
     public HTTPSFetcher(String url) {
         try {
             worker = new FetcherWorker(this, new URL(url));
-            worker.start();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
+    public void start() {
+        worker.start();
+    }
+    
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
+    }
+    
     public boolean fetchComplete() {
         return worker.complete;
     }
 
+    public void waitForCompletion() {
+        try {
+            worker.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public String stringContent() {
         if (worker.complete) {
             if (stringData == null)
@@ -79,8 +99,13 @@ public class HTTPSFetcher {
         @Override
         public void run() {
             try {
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 status = "Connected, Recieving Data";
+               
+                for (Map.Entry<String, String> entry : parent.headers.entrySet()) {
+                    connection.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+                
                 connection.setRequestMethod("GET");
 
                 InputStream is = connection.getInputStream();
