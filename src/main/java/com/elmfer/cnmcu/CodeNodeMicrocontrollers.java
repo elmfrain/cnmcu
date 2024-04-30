@@ -25,6 +25,7 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
     public void onInitialize() {
         ModSetup.createDirectories();
         ModSetup.downloadNatives();
+        ModSetup.downloadToolchain();
         
         NativesLoader.loadNatives();
         

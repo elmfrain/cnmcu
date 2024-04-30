@@ -11,6 +11,7 @@ public class NativesLoader {
     public static final String NATIVES_PLATFORM = getPlatform();
     public static final String NATIVES_BITS = getBits();
     public static final String NATIVES_EXT = getExtension();
+    public static final String EXE_EXT = NATIVES_OS.equals("windows") ? ".exe" : "";
     public static final String BINARIES_PATH = CodeNodeMicrocontrollers.MOD_ID + "/natives";
 
     private static boolean loaded = false;
@@ -41,6 +42,10 @@ public class NativesLoader {
                 + NATIVES_EXT;
     }
 
+    public static String getExecutableFilename(String name) {
+        return name + "-" + NATIVES_OS + "-" + NATIVES_PLATFORM + NATIVES_BITS + EXE_EXT;
+    }
+    
     private static String getOS() {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win"))
