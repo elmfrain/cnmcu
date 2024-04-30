@@ -82,7 +82,7 @@ jobs:
       - name: Upload Windows Binary
         uses: softprops/action-gh-release@v2
         with:
-          files: build/natives/libcnmcu*
+          files: build/natives/Release/libcnmcu*
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
 
   MacOSNatives:
