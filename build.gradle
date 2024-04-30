@@ -24,10 +24,6 @@ repositories {
 	mavenCentral()
 }
 
-configurations {
-	shadow
-}
-
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -71,6 +67,12 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
+	
+	// Bundle the imgui library aswell into a fat-jar
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from {
+		project.configurations.shadow.collect { zipTree(it) } 
+	}
 }
 
 sourceSets.main.java {
@@ -81,10 +83,6 @@ clean.doFirst {
 	delete fileTree("src/main/cpp/bridge") {
 		include "*.h"
 	}
-}
-
-shadowJar {
-	configurations = [project.configurations.shadow]
 }
 
 tasks.register("genNativeSources", GenNativeSources) {
@@ -105,7 +103,9 @@ tasks.register("compileNatives", CompileNatives) {
 
 tasks.register("saveVersion", SaveVersion)
 
-tasks.build.dependsOn tasks.shadowJar
+shadowJar {
+	configurations = [project.configurations.shadow]
+}
 
 // configure the maven publication
 publishing {
