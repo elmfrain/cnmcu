@@ -60,3 +60,52 @@ jobs:
         with:
           files: build/natives/libcnmcu*
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
+  WindowsNatives:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Save Version
+        run: gradlew saveVersion --console=plain
+
+      - name: Compile Natives
+        run: gradlew compileNatives --console=plain
+
+      - name: Upload Windows Binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/natives/libcnmcu*
+          tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
+
+  MacOSNatives:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 17
+          
+      - name: Save Version
+        run: gradlew saveVersion --console=plain
+
+      - name: Compile Natives
+        run: gradlew compileNatives --console=plain
+
+      - name: Upload Macos Binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/natives/libcnmcu*
+          tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
