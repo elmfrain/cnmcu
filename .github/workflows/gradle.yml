@@ -58,4 +58,4 @@ jobs:
           game-versions: "${{ env.MINECRAFT_VERSION }}"
 
       - name: Build Mod Natives
-        run: ./gradlew compileNatvies
+        run: ./gradlew compileNatives
