@@ -16,6 +16,7 @@ public class Packets {
         registerC2SPacket("ide_screen_save_code", IDEScreenSaveCodeC2SPacket.class);
         registerC2SPacket("ide_screen_mcu_control", IDEScreenMCUControlC2SPacket.class);
         
+        Packet.setChannel(IDEScreenSyncS2CPacket.class, "ide_screen_sync");
         registerC2S2CServerPacket("upload_rom", UploadROMC2S2CPacket.class);
     }
 
