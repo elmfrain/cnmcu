@@ -74,10 +74,10 @@ jobs:
           java-version: 17
 
       - name: Save Version
-        run: gradlew saveVersion --console=plain
+        run: ./gradlew saveVersion --console=plain
 
       - name: Compile Natives
-        run: gradlew compileNatives --console=plain
+        run: ./gradlew compileNatives --console=plain
 
       - name: Upload Windows Binary
         uses: softprops/action-gh-release@v2
@@ -99,10 +99,10 @@ jobs:
           java-version: 17
           
       - name: Save Version
-        run: gradlew saveVersion --console=plain
+        run: ./gradlew saveVersion --console=plain
 
       - name: Compile Natives
-        run: gradlew compileNatives --console=plain
+        run: ./gradlew compileNatives --console=plain
 
       - name: Upload Macos Binary
         uses: softprops/action-gh-release@v2
