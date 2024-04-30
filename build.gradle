@@ -1,5 +1,6 @@
 import tools.elmfer.GenNativeSources
 import tools.elmfer.CompileNatives
+import tools.elmfer.SaveVersion
 
 plugins {
 	id 'fabric-loom' version '1.6-SNAPSHOT'
@@ -105,6 +106,8 @@ tasks.register("compileNatives", CompileNatives) {
 	buildDir "build/natives"
 	targetDir "run/cnmcu/natives"
 }
+
+tasks.register("saveVersion", SaveVersion)
 
 tasks.build.dependsOn tasks.shadowJar
 
