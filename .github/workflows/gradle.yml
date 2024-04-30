@@ -61,7 +61,7 @@ jobs:
           files: build/natives/libcnmcu*
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
   WindowsNatives:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
