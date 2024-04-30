@@ -29,14 +29,10 @@ jobs:
           java-version: 17
 
       - name: Save Version
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          arguments: saveVersion --console=plain
+        run: ./gradlew saveVersion --console=plain
 
       - name: Build Mod
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          arguments: build --console=plain
+        run: ./gradlew build --console=plain
 
       - name: Publish Mod (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3
@@ -56,10 +52,8 @@ jobs:
           loaders: fabric
           game-versions: "${{ env.MINECRAFT_VERSION }}"
 
-      - name: Save Version
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          arguments: compileNatives --console=plain
+      - name: Compile Natives
+        run: ./gradlew compileNatives --console=plain
 
       - name: Upload Linux Binary
         uses: softprops/action-gh-release@v2
