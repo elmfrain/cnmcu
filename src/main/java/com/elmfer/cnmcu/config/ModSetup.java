@@ -92,7 +92,7 @@ public class ModSetup {
 
             for (int i = 0; i < assets.size(); i++) {
                 String assetName = assets.get(i).getAsJsonObject().get("name").getAsString();
-                if (assetName.equals(NativesLoader.getBinaryFilename())) {
+                if (assetName.equals(assetNameTarget)) {
                     assetDownloadUrl = assets.get(i).getAsJsonObject().get("url").getAsString();
                     break;
                 }
