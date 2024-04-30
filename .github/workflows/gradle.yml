@@ -50,7 +50,7 @@ jobs:
 
           github-token: ${{ env.GITHUB_TOKEN }}
 
-          name: "Parkour Recorder v${{ env.MOD_VERSION }} for Minecraft ${{ env.MINECRAFT_VERSION }}"
+          name: "CodeNode Microcontrollers v${{ env.MOD_VERSION }} for Minecraft ${{ env.MINECRAFT_VERSION }}"
           version: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
           version-type: release
           
