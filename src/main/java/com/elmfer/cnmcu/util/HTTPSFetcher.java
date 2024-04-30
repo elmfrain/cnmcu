@@ -44,7 +44,7 @@ public class HTTPSFetcher {
             try {
                 return JsonParser.parseString(stringContent()).getAsJsonObject();
             } catch (Exception e) {
-                e.printStackTrace();
+                return new JsonObject();
             }
         }
         
