@@ -14,13 +14,10 @@ permissions:
   contents: write
 
 jobs:
-  Linux-Build:
+  Linux-Build-Publish:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Enviornment Variables
-        run: env
-
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -56,6 +53,22 @@ jobs:
           
           loaders: fabric
           game-versions: "${{ env.MINECRAFT_VERSION }}"
+          
+  Linux-BuildNatives:
+    runs-on: ubuntu-latest
 
-      - name: Build Mod Natives
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Save Version
+        run: ./gradlew saveVersion
+
+      - name: Compile Natives
         run: ./gradlew compileNatives
