@@ -40,8 +40,8 @@ jobs:
           modrinth-id: x3ZXt0cm
           modrinth-token: ${{ env.MODRINTH_TOKEN }}
 
-          # curseforge-id: 
-          # curseforge-token: ${{ env.CURSEFORGE_TOKEN }}
+          curseforge-id: 1011557
+          curseforge-token: ${{ env.CURSEFORGE_TOKEN }}
 
           github-token: ${{ env.GITHUB_TOKEN }}
 
