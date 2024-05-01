@@ -3,32 +3,31 @@ package com.elmfer.cnmcu.animation;
 import org.lwjgl.glfw.GLFW;
 
 public class Timer {
-    public final double tps;
-    private double nextTick;
+    public final double time;
+    private double startTime;
+    private boolean hasExpired = false;
     
-    public Timer(double tps) {
-        this.tps = tps;
-        this.nextTick = GLFW.glfwGetTime();
+    public Timer(double time) {
+        this.time = time;
+        this.startTime = GLFW.glfwGetTime();
     }
     
-    public int ticksPassed() {
-        double currentTime = GLFW.glfwGetTime();
-        int ticks = 0;
-
-        while (currentTime > nextTick) {
-            nextTick += 1.0 / tps;
-            ticks++;
-        }
-
-        return ticks;
+    public Timer expire() {
+        hasExpired = true;
+        return this;
     }
     
-    public double partialTicks() {
-        double currentTime = GLFW.glfwGetTime();
-        return (currentTime + 1.0 / tps - nextTick) * tps;
+    public boolean hasExpired() {
+        if(hasExpired) return true;
+        return (hasExpired = GLFW.glfwGetTime() - startTime >= time);
     }
     
-    public double lerp(double start, double end) {
-        return start + (end - start) * partialTicks();
+    public double getProgress() {
+        return (GLFW.glfwGetTime() - startTime) / time;
+    }
+    
+    public void reset() {
+        hasExpired = false;
+        startTime = GLFW.glfwGetTime();
     }
 }
