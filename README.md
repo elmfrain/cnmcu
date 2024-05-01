@@ -18,7 +18,7 @@ The instruction set of the 6502 can be referenced here: [Ultimate Commodore 64 R
 
 Within the mod, you can view quick references by clicking `Code Editor` > `Help` > `Documentation`.
 
-![ScreenShot](./screenshots/Screenshot%20from%202024-04-09%2002-17-52.png)
+![ScreenShot](./screenshots/Screenshot%20from%202024-05-01%2016-52-53.png)
 
 ## License
 
