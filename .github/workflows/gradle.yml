@@ -37,8 +37,8 @@ jobs:
       - name: Publish Mod (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          # modrinth-id: 
-          # modrinth-token: ${{ env.MODRINTH_TOKEN }}
+          modrinth-id: x3ZXt0cm
+          modrinth-token: ${{ env.MODRINTH_TOKEN }}
 
           # curseforge-id: 
           # curseforge-token: ${{ env.CURSEFORGE_TOKEN }}
