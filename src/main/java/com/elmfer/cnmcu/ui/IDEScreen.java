@@ -7,7 +7,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 
 import com.elmfer.cnmcu.EventHandler;
-import com.elmfer.cnmcu.animation.Timer;
+import com.elmfer.cnmcu.animation.ClockTimer;
 import com.elmfer.cnmcu.cpp.NativesUtils;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.network.IDEScreenHeartbeatC2SPacket;
@@ -55,12 +55,15 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     public boolean isClockPaused = false;
     public ByteBuffer zeroPage = BufferUtils.createByteBuffer(256);
 
-    private Timer heartbeatTimer = new Timer(1);
+    private ClockTimer heartbeatTimer = new ClockTimer(1);
     private IDEScreenHeartbeatC2SPacket heartbeatPacket;
 
     private CompletableFuture<byte[]> compileFuture;
     private UploadROMC2S2CPacket uploadPacket;
     private boolean shouldUpload = false;
+
+    private boolean showAbout = false;
+    private boolean showDocs = false;
 
     public IDEScreen(IDEScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -170,6 +173,14 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                 ImGui.endMenu();
             }
 
+            if (ImGui.beginMenu("Help")) {
+                if (ImGui.menuItem("About"))
+                    showAbout = true;
+                if (ImGui.menuItem("Documentation"))
+                    showDocs = true;
+                ImGui.endMenu();
+            }
+
             ImGui.endMenuBar();
         }
 
@@ -227,6 +238,41 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         if (textEditor.isTextChanged())
             saved = false;
+
+        if (showAbout) {
+            ImGui.openPopup("About");
+            showAbout = false;
+        }
+
+        if (showDocs) {
+            ImGui.openPopup("Documentation");
+            showDocs = false;
+        }
+
+        float centerX = UIRender.getWindowWidth() / 2;
+        float centerY = UIRender.getWindowHeight() / 2;
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        
+        if (ImGui.beginPopupModal("About")) {
+            QuickReferences.genAbout();
+            ImGui.newLine();
+            if (ImGui.button("Close")) 
+                ImGui.closeCurrentPopup();
+            ImGui.endPopup();
+        }
+        
+        
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 400, ImGuiCond.Once);
+
+        if (ImGui.beginPopupModal("Documentation")) {
+            QuickReferences.genNanoDocumentation();
+            ImGui.newLine();
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.endPopup();
+        }
 
         ImGui.end();
     }
