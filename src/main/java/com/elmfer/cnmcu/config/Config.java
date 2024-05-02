@@ -18,7 +18,7 @@ public class Config {
     public static final File CONFIG_FILE = new File("config/" + CodeNodeMicrocontrollers.MOD_ID + ".json");
 
     private static JsonObject config = new JsonObject();
-    private static CompletableFuture<Void> saveTask = new CompletableFuture<>();
+    private static CompletableFuture<Void> saveTask;
     private static boolean firstTimeUse = false;
 
     static {
@@ -29,6 +29,8 @@ public class Config {
         } catch (FileNotFoundException e) {
             CodeNodeMicrocontrollers.LOGGER.warn("Config file not found, creating new one...");
 
+            config.addProperty("adviseUpdates", adviseUpdates());
+            
             firstTimeUse = true;
             save();
         }
@@ -39,6 +41,18 @@ public class Config {
     
     public static boolean isFirstTimeUse() {
         return firstTimeUse;
+    }
+    
+    public static boolean adviseUpdates() {
+        if (config.has("adviseUpdates"))
+            return config.get("adviseUpdates").getAsBoolean();
+        
+        return true;
+    }
+    
+    public static void setAdviseUpdates(boolean adviseUpdates) {
+        config.addProperty("adviseUpdates", adviseUpdates);
+        save();
     }
     
     public static void save() {

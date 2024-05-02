@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.elmfer.cnmcu.EventHandler;
 import com.elmfer.cnmcu.animation.ClockTimer;
+import com.elmfer.cnmcu.config.Config;
 import com.elmfer.cnmcu.cpp.NativesUtils;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.network.IDEScreenHeartbeatC2SPacket;
@@ -64,6 +65,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
     private boolean showAbout = false;
     private boolean showDocs = false;
+    private boolean showUpdates = false;
 
     public IDEScreen(IDEScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -178,6 +180,8 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                     showAbout = true;
                 if (ImGui.menuItem("Documentation"))
                     showDocs = true;
+                if (ImGui.menuItem("Updates"))
+                    showUpdates = true;
                 ImGui.endMenu();
             }
 
@@ -248,6 +252,11 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.openPopup("Documentation");
             showDocs = false;
         }
+        
+        if (showUpdates) {
+            ImGui.openPopup("Updates");
+            showUpdates = false;
+        }
 
         float centerX = UIRender.getWindowWidth() / 2;
         float centerY = UIRender.getWindowHeight() / 2;
@@ -271,6 +280,20 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.newLine();
             if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
+            ImGui.endPopup();
+        }
+        
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        
+        if (ImGui.beginPopupModal("Updates")) {
+            QuickReferences.genUpdates();
+            ImGui.newLine();
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.sameLine();
+            if (ImGui.checkbox("Notify me of updates", Config.adviseUpdates()))
+                Config.setAdviseUpdates(!Config.adviseUpdates());
             ImGui.endPopup();
         }
 
