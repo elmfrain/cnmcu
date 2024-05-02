@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollersClient;
+import com.elmfer.cnmcu.util.ResourceLoader;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
 public class Meshes {
@@ -33,11 +33,8 @@ public class Meshes {
     }
 
     public static Mesh load(Identifier model) {
-
         try {
-
-            InputStream modelStream = MinecraftClient.getInstance().getResourceManager().getResource(model).get()
-                    .getInputStream();
+            InputStream modelStream = ResourceLoader.getInputStream(model);
             BufferedInputStream modelFile = new BufferedInputStream(modelStream);
             modelFile.mark(Integer.MAX_VALUE);
             String[] modelPath = model.getPath().split("/");
@@ -112,8 +109,8 @@ public class Meshes {
                 return mesh;
             }
         } catch (Exception e) {
-            CodeNodeMicrocontrollersClient.LOGGER.error("Failed to load \"{}\" mesh because of: {}", model.getPath(),
-                    e.getMessage());
+            CodeNodeMicrocontrollersClient.LOGGER.error("Failed to load \"{}\" mesh", model.getPath());
+            e.printStackTrace();
         }
 
         return null;

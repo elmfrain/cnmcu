@@ -14,9 +14,9 @@ import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
 import com.elmfer.cnmcu.cpp.NativesLoader;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.util.HTTPSFetcher;
+import com.elmfer.cnmcu.util.ResourceLoader;
 import com.google.gson.JsonArray;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
 public class ModSetup {
@@ -46,8 +46,7 @@ public class ModSetup {
             return;
 
         try {
-            InputStream imguiIni = MinecraftClient.getInstance().getResourceManager().getResource(imguiIniId).get()
-                    .getInputStream();
+            InputStream imguiIni = ResourceLoader.getInputStream(imguiIniId);
             Files.copy(imguiIni, Paths.get(IMGUI_INI_FILE));
 
             imguiIni.close();
@@ -63,21 +62,17 @@ public class ModSetup {
 
     public static void downloadToolchain() {
         final String vasmFilename = "vasm6502_oldstyle";
-
         ensureInstall("vasm", Paths.get(Toolchain.TOOLCHAIN_PATH, vasmFilename + NativesLoader.EXE_EXT),
                 NativesLoader.getExecutableFilename(vasmFilename));
 
         final String vobjFilename = "vobjdump";
-        
         ensureInstall("vobjdump", Paths.get(Toolchain.TOOLCHAIN_PATH, vobjFilename + NativesLoader.EXE_EXT),
                 NativesLoader.getExecutableFilename(vobjFilename));
 
         final String cygFilename = "cygwin1.dll";
-
-        if (NativesLoader.NATIVES_OS.equals("windows")) {
+        if (NativesLoader.NATIVES_OS.equals("windows"))
             ensureInstall("cygwin1.dll", Paths.get(Toolchain.TOOLCHAIN_PATH, cygFilename),
                     "cygwin1.dll");
-        }
     }
 
     private static byte[] getGitHubAsset(String assetNameTarget) {
