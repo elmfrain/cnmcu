@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
 import com.elmfer.cnmcu.cpp.NativesLoader;
@@ -24,12 +26,123 @@ public class ModSetup {
     public static final String IMGUI_INI_FILE = CodeNodeMicrocontrollers.MOD_ID + "/imgui.ini";
 
     private static final String GITHUB_REPO_URL = "https://api.github.com/repos/elmfrain/cnmcu";
+    private static final Set<String> LATEST_FOR_MINECRAFT_VERSIONS = new HashSet<>();
 
     private static JsonArray githubAssets;
-
+    private static String latestVersion = CodeNodeMicrocontrollers.MOD_VERSION.split("-")[0];
+    private static String changelog = "No changelog available";
+    private static boolean updateAvailable = false;
+    private static boolean hasCheckedForUpdates = false;
+    private static boolean wasAbleToConnect = true;
+    
+    static {
+        LATEST_FOR_MINECRAFT_VERSIONS.add(CodeNodeMicrocontrollers.MOD_VERSION.split("-")[1]);
+    }
+    
     private ModSetup() {
     }
 
+    public static String getLatestVersion() {
+        return latestVersion;
+    }
+    
+    /**
+     * Returns the Minecraft versions the latest release of the mod is available for.
+     * @return
+     */
+    public static String[] getLatestForMinecraftVersions() {
+        return LATEST_FOR_MINECRAFT_VERSIONS.toArray(new String[0]);
+    }
+    
+    public static String getChangelog() {
+        return changelog;
+    }
+    
+    public static boolean isUpdateAvailable() {
+        return updateAvailable;
+    }
+    
+    public static CompletableFuture<Void> checkForUpdatesAsync() {
+        if (hasCheckedForUpdates)
+            return CompletableFuture.completedFuture(null);
+        
+        return CompletableFuture.runAsync(() -> checkForUpdates());
+    }
+    
+    public static boolean hasCheckedForUpdates() {
+        return hasCheckedForUpdates;
+    }
+    
+    public static boolean wasAbleToCheckForUpdates() {
+        return wasAbleToConnect;
+    }
+    
+    public static void checkForUpdates() {
+        if (hasCheckedForUpdates)
+            return;
+        
+        HTTPSFetcher fetcher = new HTTPSFetcher(GITHUB_REPO_URL + "/releases");
+        fetcher.addHeader("Accept", "application/vnd.github.v3+json");
+        fetcher.start();
+        fetcher.waitForCompletion();
+
+        if (fetcher.statusCode() != 200) {
+            wasAbleToConnect = false;
+            hasCheckedForUpdates = true;
+            return;
+        }
+        
+        long currentModVersion = numberizeVersion(CodeNodeMicrocontrollers.MOD_VERSION.split("-")[0]);
+        long latestVersionId = currentModVersion;
+        String latestVersion = ModSetup.latestVersion;
+        int latestIndex = -1;
+        
+        try {
+            JsonArray releases = fetcher.jsonContent().getAsJsonArray();
+            String[] releaseVersion = null;
+            for (int i = 0; i < releases.size(); i++) {
+                releaseVersion = releases.get(i).getAsJsonObject().get("tag_name").getAsString().split("-");
+                if (isMinecraftSnapshot(releaseVersion[1]))
+                    continue;
+                
+                long versionNumber = numberizeVersion(releaseVersion[0]);
+                
+                if (Long.compareUnsigned(versionNumber, latestVersionId) < 0)
+                    continue;
+                else if(Long.compareUnsigned(versionNumber, latestVersionId) > 0)
+                    LATEST_FOR_MINECRAFT_VERSIONS.clear();
+                
+                updateAvailable = true;
+                LATEST_FOR_MINECRAFT_VERSIONS.add(releaseVersion[1]);
+                
+                latestVersionId = versionNumber;
+                latestVersion = releaseVersion[0];
+                latestIndex = i;
+            }
+            
+            if (latestIndex == -1) {
+                hasCheckedForUpdates = true;
+                return;
+            }
+            
+            if (currentModVersion >= latestVersionId) {
+                updateAvailable = false;
+                hasCheckedForUpdates = true;
+                return;
+            }
+            
+            wasAbleToConnect = true;
+            
+            ModSetup.latestVersion = latestVersion;
+            ModSetup.changelog = releases.get(latestIndex).getAsJsonObject().get("body").getAsString().replaceAll("[#*>_]", "");
+        } catch (Exception e) {
+            wasAbleToConnect = false;
+            e.printStackTrace();
+        }
+        
+        hasCheckedForUpdates = true;
+    }
+    
     public static void createDirectories() {
         try {
             Files.createDirectories(Paths.get(Toolchain.TOOLCHAIN_PATH));
@@ -78,7 +191,7 @@ public class ModSetup {
     private static byte[] getGitHubAsset(String assetNameTarget) {
         CodeNodeMicrocontrollers.LOGGER.info("Downloading asset from GitHub... {}", assetNameTarget);
 
-        getGitHubAssets();
+        listGitHubAssets();
 
         String assetDownloadUrl = null;
 
@@ -111,7 +224,7 @@ public class ModSetup {
         return fetcher.byteContent();
     }
 
-    private static void getGitHubAssets() {
+    private static void listGitHubAssets() {
         if (githubAssets != null)
             return;
 
@@ -130,7 +243,7 @@ public class ModSetup {
             return;
 
         try {
-            githubAssets = fetcher.jsonContent().get("assets").getAsJsonArray();
+            githubAssets = fetcher.jsonContent().getAsJsonObject().get("assets").getAsJsonArray();
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse assets from GitHub!", e);
         }
@@ -160,5 +273,24 @@ public class ModSetup {
         } catch (IOException e) {
             throw new RuntimeException("Failed to write " + moduleName + " to disk!", e);
         }
+    }
+    
+    private static long numberizeVersion(String version) {
+        version = version.replaceAll("[a-zA-Z]", "");
+        
+        String[] parts = version.split("\\.");
+        
+        if (parts.length > 4)
+            throw new IllegalArgumentException("Invalid version format!");
+        
+        long number = 0;
+        for (int i = 0; i < parts.length; i++) {
+            number |= Integer.parseInt(parts[i]) << (i * 16);
+        }
+        return number;
+    }
+    
+    private static boolean isMinecraftSnapshot(String version) {
+        return version.matches("[0-9]{2}w[0-9]{2}[a-c]");
     }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -59,10 +60,10 @@ public class HTTPSFetcher {
         return worker.status;
     }
     
-    public JsonObject jsonContent() {
+    public JsonElement jsonContent() {
         if(worker.complete) {
             try {
-                return JsonParser.parseString(stringContent()).getAsJsonObject();
+                return JsonParser.parseString(stringContent());
             } catch (Exception e) {
                 return new JsonObject();
             }
@@ -131,6 +132,7 @@ public class HTTPSFetcher {
                 // TODO Auto-generated catch block
                 statusCode = 0;
                 status = String.format("Fetch Failed: %s", e.toString());
+                e.printStackTrace();
             }
         }
     }
