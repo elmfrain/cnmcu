@@ -98,7 +98,7 @@ tasks.register("compileNatives", CompileNatives) {
 	
 	sourceDir "src/main/cpp"
 	buildDir "build/natives"
-	targetDir "run/cnmcu/natives"
+	targetDir "run/cnmcu/natives/" + project.mod_version
 }
 
 tasks.register("saveVersion", SaveVersion)
