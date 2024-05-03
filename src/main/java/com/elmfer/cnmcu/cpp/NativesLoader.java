@@ -12,7 +12,7 @@ public class NativesLoader {
     public static final String NATIVES_BITS = getBits();
     public static final String NATIVES_EXT = getExtension();
     public static final String EXE_EXT = NATIVES_OS.equals("windows") ? ".exe" : "";
-    public static final String BINARIES_PATH = CodeNodeMicrocontrollers.MOD_ID + "/natives";
+    public static final String BINARIES_PATH = CodeNodeMicrocontrollers.MOD_ID + "/natives/" + CodeNodeMicrocontrollers.MOD_VERSION;
 
     private static boolean loaded = false;
 
