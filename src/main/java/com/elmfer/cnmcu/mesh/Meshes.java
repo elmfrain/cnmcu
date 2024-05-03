@@ -1,13 +1,11 @@
 package com.elmfer.cnmcu.mesh;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Scanner;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollersClient;
 import com.elmfer.cnmcu.util.ResourceLoader;
@@ -34,82 +32,24 @@ public class Meshes {
 
     public static Mesh load(Identifier model) {
         try {
+            // Load the model file
             InputStream modelStream = ResourceLoader.getInputStream(model);
-            BufferedInputStream modelFile = new BufferedInputStream(modelStream);
-            modelFile.mark(Integer.MAX_VALUE);
+            byte[] modelData = modelStream.readAllBytes();
+            modelStream.close();
+            
+            // Get the model name from the path
             String[] modelPath = model.getPath().split("/");
             String modelName = modelPath[modelPath.length - 1].replace(".ply", "");
-            try (Scanner scanner = new Scanner(modelStream)) {
-                int vertexCount = 0;
-                int vertexTotal = 0;
-                int faceCount = 0;
-                int faceTotal = 0;
-                boolean headerDone = false;
-
-                Mesh mesh = new Mesh(modelName);
-
-                while (scanner.hasNextLine()) {
-                    if (!headerDone) {
-                        String line = scanner.nextLine();
-                        if (line.contains("element vertex ")) {
-                            vertexTotal = Integer.parseInt(line.substring(15));
-                            continue;
-                        } else if (line.contains("element face ")) {
-                            faceTotal = Integer.parseInt(line.substring(13));
-                            continue;
-                        } else if (line.contains("end_header")) {
-                            headerDone = true;
-                            mesh.positions.ensureCapacity(vertexTotal * POSITION_COMPONENTS);
-                            mesh.uvs = Optional.of(new ArrayList<Float>());
-                            mesh.uvs.get().ensureCapacity(vertexTotal * UV_COMPONENTS);
-                            mesh.normals.ensureCapacity(vertexTotal * NORMAL_COMPONENTS);
-                            mesh.colors = Optional.of(new ArrayList<Float>());
-                            mesh.colors.get().ensureCapacity(vertexTotal * COLOR_COMPONENTS);
-                            mesh.indices.ensureCapacity(faceTotal * FACE_INDICIES);
-                            continue;
-                        }
-                    } else {
-                        if (vertexCount < vertexTotal) {
-                            mesh.positions.add(scanner.nextFloat()); // pos x
-                            mesh.positions.add(scanner.nextFloat()); // pos y
-                            mesh.positions.add(scanner.nextFloat()); // pos z
-                            mesh.normals.add(scanner.nextFloat()); // norm x
-                            mesh.normals.add(scanner.nextFloat()); // norm y
-                            mesh.normals.add(scanner.nextFloat()); // norm z
-                            mesh.colors.get().add(scanner.nextFloat() / 255.0f); // color r
-                            mesh.colors.get().add(scanner.nextFloat() / 255.0f); // color g
-                            mesh.colors.get().add(scanner.nextFloat() / 255.0f); // color b
-                            mesh.colors.get().add(scanner.nextFloat() / 255.0f); // color a
-                            mesh.uvs.get().add(scanner.nextFloat()); // tex s
-                            mesh.uvs.get().add(scanner.nextFloat()); // tex t
-                            vertexCount++;
-                        } else if (faceCount < faceTotal) {
-                            int a = 0, b = 0, c = 0, d = 0;
-                            if (scanner.nextInt() != 4)
-                                throw new Exception("Only quads are supported");
-                            a = scanner.nextInt();
-                            b = scanner.nextInt();
-                            c = scanner.nextInt();
-                            d = scanner.nextInt();
-                            mesh.indices.add(a);
-                            mesh.indices.add(b);
-                            mesh.indices.add(c);
-                            mesh.indices.add(d);
-                            faceCount++;
-                        } else
-                            break;
-                    }
-                }
-
-                meshes.put(modelName, mesh);
-
-                scanner.close();
-                modelFile.close();
-
-                return mesh;
-            }
+            
+            Mesh mesh = new Mesh(modelName);
+            
+            // Parse the PLY file
+            parsePLY(modelData, mesh);
+            
+            meshes.put(modelName, mesh);
+            return mesh;
         } catch (Exception e) {
-            CodeNodeMicrocontrollersClient.LOGGER.error("Failed to load \"{}\" mesh", model.getPath());
+            CodeNodeMicrocontrollersClient.LOGGER.error("Failed to load mesh: " + model, e);
             e.printStackTrace();
         }
 
@@ -155,4 +95,17 @@ public class Meshes {
 
         return mesh;
     }
+    
+    // @formatter:off
+    
+    /*JNI
+        #include "MeshLoader.hpp"
+        #include "cnmcuJava.h"
+    */
+    
+    private static native void parsePLY(byte[] data, Mesh mesh); /*
+        cnmcuJava::init(env);
+        size_t dataSize = static_cast<size_t>(env->GetArrayLength(obj_data));
+        MeshLoader::loadPLY(env, data, dataSize, mesh);
+    */
 }

@@ -10,17 +10,43 @@
         return; \
     } \
 
+#define GET_CLASS(var, name) \
+    (var) = env->FindClass(name); \
+    CHECK_FOR_EXCEPTION(); \
+    (var) = (jclass) env->NewGlobalRef(var); \
+    CHECK_FOR_EXCEPTION(); \
+
+#define GET_METHOD_ID(var, clazz, name, sig) \
+    (var) = env->GetMethodID(clazz, name, sig); \
+    CHECK_FOR_EXCEPTION(); \
+
+#define GET_STATIC_METHOD_ID(var, clazz, name, sig) \
+    (var) = env->GetStaticMethodID(clazz, name, sig); \
+    CHECK_FOR_EXCEPTION(); \
+
+#define GET_FIELD_ID(var, clazz, name, sig) \
+    (var) = env->GetFieldID(clazz, name, sig); \
+    CHECK_FOR_EXCEPTION(); \
+
+#define GET_STATIC_FIELD_ID(var, clazz, name, sig) \
+    (var) = env->GetStaticFieldID(clazz, name, sig); \
+    CHECK_FOR_EXCEPTION(); \
+
 class cnmcuJava
 {
 public:
     static JNIEnv* env;
     static JavaVM* vm;
 
+
+    // Exceptions
     static jclass NullPointerException;
     static jclass IllegalArgumentException;
     static jclass IllegalStateException;
     static jclass RuntimeException;
 
+
+    // System.out
     static jclass System;
     static jfieldID System_out_id;
     static jobject System_out;
@@ -28,6 +54,17 @@ public:
     static jclass PrintStream;
     static jmethodID PrintStream_print;
 
+
+    // For mesh loading
+    static jclass Mesh;
+    static jmethodID Mesh_loadPositions;
+    static jmethodID Mesh_loadNormals;
+    static jmethodID Mesh_loadIndices;
+    static jmethodID Mesh_loadColors;
+    static jmethodID Mesh_loadUvs;
+
+
+    // For CNMCU
     static jclass NanoMCU;
 
     static jclass MOS6502;

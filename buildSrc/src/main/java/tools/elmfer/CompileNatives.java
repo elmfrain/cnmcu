@@ -56,7 +56,7 @@ public class CompileNatives extends DefaultTask {
         executeCommand("cmake -S " + absSourceDir + " -B " + absBuildDir + " -DCMAKE_BUILD_TYPE=" + buildType,
                 "Error configuring CMake project!");
 
-        executeCommand("cmake --build " + absBuildDir + " --target " + cmakeTarget + " --config " + buildType,
+        executeCommand("cmake --build " + absBuildDir + " --parallel --target " + cmakeTarget + " --config " + buildType,
                 "Error compiling native source files!");
 
         boolean inProduction = System.getenv("PRODUCTION") != null;
