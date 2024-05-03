@@ -1,6 +1,7 @@
 package com.elmfer.cnmcu.mesh;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -11,9 +12,9 @@ import com.elmfer.cnmcu.mesh.VertexFormat.VertexAttribute;
 
 public class Mesh {
     public final String name;
-    public final ArrayList<Float> positions = new ArrayList<Float>();
-    public final ArrayList<Float> normals = new ArrayList<Float>();
-    public final ArrayList<Integer> indices = new ArrayList<Integer>();
+    public ArrayList<Float> positions = new ArrayList<Float>();
+    public ArrayList<Float> normals = new ArrayList<Float>();
+    public ArrayList<Integer> indices = new ArrayList<Integer>();
 
     public Optional<ArrayList<Float>> uvs = Optional.empty();
     public Optional<ArrayList<Float>> colors = Optional.empty();
@@ -141,7 +142,8 @@ public class Mesh {
     public void render(int mode) {
         if (!isRenderable) {
             if (!hasWarnedAboutNotBeingRenderable) {
-                CodeNodeMicrocontrollersClient.LOGGER.warn("Attempted to render mesh \"%s\" that is not renderable", name);
+                CodeNodeMicrocontrollersClient.LOGGER.warn("Attempted to render mesh \"%s\" that is not renderable",
+                        name);
                 hasWarnedAboutNotBeingRenderable = true;
             }
             return;
@@ -180,5 +182,64 @@ public class Mesh {
             builder.color(colors.get(index), colors.get(index + 1), colors.get(index + 2), colors.get(index + 3));
         else
             builder.color();
+    }
+
+    // These methods are called from the MeshLoader in C++.
+    // It uses assimp to load the PLY file and then calls these methods to load the
+    // data.
+
+    protected void loadPositions(ByteBuffer buffer, int vertexCount) {
+        buffer.order(ByteOrder.nativeOrder());
+        positions.ensureCapacity(vertexCount * 3);
+
+        for (int i = 0; i < vertexCount; i++) {
+            positions.add(buffer.getFloat());
+            positions.add(buffer.getFloat());
+            positions.add(buffer.getFloat());
+        }
+    }
+
+    protected void loadNormals(ByteBuffer buffer, int vertexCount) {
+        buffer.order(ByteOrder.nativeOrder());
+        normals.ensureCapacity(vertexCount * 3);
+
+        for (int i = 0; i < vertexCount; i++) {
+            normals.add(buffer.getFloat());
+            normals.add(buffer.getFloat());
+            normals.add(buffer.getFloat());
+        }
+    }
+
+    protected void loadIndices(ByteBuffer buffer, int indexCount) {
+        buffer.order(ByteOrder.nativeOrder());
+        indices.ensureCapacity(indexCount);
+
+        for (int i = 0; i < indexCount; i++)
+            indices.add(buffer.getInt());
+    }
+
+    protected void loadColors(ByteBuffer buffer, int vertexCount) {
+        buffer.order(ByteOrder.nativeOrder());
+        colors = Optional.of(new ArrayList<Float>());
+        colors.get().ensureCapacity(vertexCount * 4);
+
+        for (int i = 0; i < vertexCount; i++) {
+            colors.get().add(buffer.getFloat());
+            colors.get().add(buffer.getFloat());
+            colors.get().add(buffer.getFloat());
+            colors.get().add(buffer.getFloat());
+        }
+    }
+
+    protected void loadUvs(ByteBuffer buffer, int vertexCount) {
+        buffer.order(ByteOrder.nativeOrder());
+        uvs = Optional.of(new ArrayList<Float>());
+        uvs.get().ensureCapacity(vertexCount * 2);
+
+        for (int i = 0; i < vertexCount; i++) {
+            uvs.get().add(buffer.getFloat());
+            uvs.get().add(buffer.getFloat());
+            buffer.getFloat();
+        }
     }
 }

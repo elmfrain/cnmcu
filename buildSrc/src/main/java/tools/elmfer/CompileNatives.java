@@ -53,10 +53,10 @@ public class CompileNatives extends DefaultTask {
         String absSourceDir = getProject().file(sourceDir).getAbsolutePath();
         String absBuildDir = getProject().file(buildDir).getAbsolutePath();
 
-        executeCommand("cmake -S " + absSourceDir + " -B " + absBuildDir + " -DCMAKE_BUILD_TYPE=" + buildType,
+        executeCommand("cmake -S " + absSourceDir + " -B " + absBuildDir + " -Wno-dev -DCMAKE_BUILD_TYPE=" + buildType,
                 "Error configuring CMake project!");
 
-        executeCommand("cmake --build " + absBuildDir + " --target " + cmakeTarget + " --config " + buildType,
+        executeCommand("cmake --build " + absBuildDir + " --parallel --target " + cmakeTarget + " --config " + buildType,
                 "Error compiling native source files!");
 
         boolean inProduction = System.getenv("PRODUCTION") != null;
@@ -143,10 +143,12 @@ public class CompileNatives extends DefaultTask {
         Path targetPath = getProject().file(targetDir).toPath();
 
         Path buildDir = getProject().file(this.buildDir).toPath();
+        
+        
 
         Files.walk(buildDir).filter(LIBS_FILTER).forEach(source -> {
             try {
-                Path target = targetPath.resolve(buildDir.relativize(source));
+                Path target = targetPath.resolve(source.getFileName());
 
                 Files.createDirectories(target.getParent());
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
