@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -75,6 +77,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -104,6 +108,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup Java
         uses: actions/setup-java@v2
