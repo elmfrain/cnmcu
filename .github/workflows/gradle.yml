@@ -5,7 +5,7 @@ on: workflow_dispatch
 env:
   MINECRAFT_VERSION: 1.20.4
   JAVA_VERSION: 17
-  MOD_VERSION: 0.0.6a
+  MOD_VERSION: 0.0.7a
   MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
   CURSEFORGE_TOKEN: ${{ secrets.PUBLISH_CURSEFORGE_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
@@ -30,6 +30,12 @@ jobs:
 
       - name: Save Version
         run: ./gradlew saveVersion --console=plain
+
+      - name: Commit updated mod version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update mod version to ${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
+          file_pattern: "gradle.properties *CodeNodeMicrocontrollers.java *fabric.mod.json"
 
       - name: Build Mod
         run: ./gradlew build --console=plain
