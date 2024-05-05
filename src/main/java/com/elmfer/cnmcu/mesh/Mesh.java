@@ -216,6 +216,7 @@ public class Mesh {
 
         for (int i = 0; i < indexCount; i++)
             indices.add(buffer.getInt());
+        System.out.println("Loaded indices: " + indices.size());
     }
 
     protected void loadColors(ByteBuffer buffer, int vertexCount) {
@@ -239,7 +240,6 @@ public class Mesh {
         for (int i = 0; i < vertexCount; i++) {
             uvs.get().add(buffer.getFloat());
             uvs.get().add(buffer.getFloat());
-            buffer.getFloat();
         }
     }
 }

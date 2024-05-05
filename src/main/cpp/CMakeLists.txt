@@ -9,17 +9,6 @@ set(MOD_ID "cnmcu")
 
 project("${MOD_ID}-natives")
 
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL " " FORCE)
-set(ASSIMP_BUILD_PLY_IMPORTER ON  CACHE BOOL " " FORCE) #Only enable ply importer
-set(ASSIMP_NO_EXPORT          ON  CACHE BOOL " " FORCE)
-set(ASSIMP_BUILD_TESTS        OFF CACHE BOOL " " FORCE)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL " " FORCE)
-set(ASSIMP_INSTALL            OFF CACHE BOOL " " FORCE)
-set(ASSIMP_BUILD_ZLIB         ON  CACHE BOOL " " FORCE)
-set(BUILD_SHARED_LIBS         OFF CACHE BOOL " " FORCE)
-set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL " " FORCE)
-add_subdirectory("dep/assimp")
-
 find_package(Java REQUIRED)
 set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
@@ -40,10 +29,6 @@ set(PROJECT_INCLUDES
   bridge
   cnmcu
   ${JNI_INCLUDE_DIRS}
-)
-
-set(PROJECT_LIBRARIES
-  assimp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
