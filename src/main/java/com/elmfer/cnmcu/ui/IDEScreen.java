@@ -309,6 +309,9 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
+            ImGui.sameLine();
+            if (ImGui.button("Refresh"))
+            	Toolchain.loadConfig();
             ImGui.pushStyleColor(ImGuiCol.Text, shouldLoadDefaults ? 0xFF5555FF : 0xFFFFFFFF);
             ImGui.sameLine();
             if (ImGui.button(!shouldLoadDefaults ? "Load Defaults" : "Are you sure?")) {
