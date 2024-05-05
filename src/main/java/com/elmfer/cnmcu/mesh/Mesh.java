@@ -239,7 +239,6 @@ public class Mesh {
         for (int i = 0; i < vertexCount; i++) {
             uvs.get().add(buffer.getFloat());
             uvs.get().add(buffer.getFloat());
-            buffer.getFloat();
         }
     }
 }

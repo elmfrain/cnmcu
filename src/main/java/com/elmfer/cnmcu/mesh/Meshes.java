@@ -101,11 +101,16 @@ public class Meshes {
     /*JNI
         #include "MeshLoader.hpp"
         #include "cnmcuJava.h"
+        #include <exception>
     */
     
     private static native void parsePLY(byte[] data, Mesh mesh); /*
         cnmcuJava::init(env);
         size_t dataSize = static_cast<size_t>(env->GetArrayLength(obj_data));
-        MeshLoader::loadPLY(env, data, dataSize, mesh);
+        try {
+            MeshLoader::loadPLY(env, data, dataSize, mesh);
+        } catch (const std::exception& e) {
+            env->ThrowNew(cnmcuJava::IllegalArgumentException, e.what());
+        }
     */
 }
