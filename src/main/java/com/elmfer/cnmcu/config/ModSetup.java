@@ -128,13 +128,14 @@ public class ModSetup {
             if (currentModVersion >= latestVersionId) {
                 updateAvailable = false;
                 hasCheckedForUpdates = true;
+                ModSetup.changelog = releases.get(0).getAsJsonObject().get("body").getAsString().replaceAll("[#>_]", "").replaceAll("\\* ", "-");
                 return;
             }
             
             wasAbleToConnect = true;
             
             ModSetup.latestVersion = latestVersion;
-            ModSetup.changelog = releases.get(latestIndex).getAsJsonObject().get("body").getAsString().replaceAll("[#*>_]", "");
+            ModSetup.changelog = releases.get(latestIndex).getAsJsonObject().get("body").getAsString().replaceAll("[#*>_]", "").replaceAll("\\* ", "-");
         } catch (Exception e) {
             wasAbleToConnect = false;
             e.printStackTrace();
