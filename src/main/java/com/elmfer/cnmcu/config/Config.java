@@ -30,6 +30,7 @@ public class Config {
             CodeNodeMicrocontrollers.LOGGER.warn("Config file not found, creating new one...");
 
             config.addProperty("adviseUpdates", adviseUpdates());
+            config.addProperty("showRegistersInHex", showRegistersInHex());
             
             firstTimeUse = true;
             save();
@@ -52,7 +53,17 @@ public class Config {
     
     public static void setAdviseUpdates(boolean adviseUpdates) {
         config.addProperty("adviseUpdates", adviseUpdates);
-        save();
+    }
+    
+    public static boolean showRegistersInHex() {
+        if (config.has("showRegistersInHex"))
+            return config.get("showRegistersInHex").getAsBoolean();
+
+        return true;
+    }
+    
+    public static void setShowRegistersInHex(boolean showRegistersInHex) {
+        config.addProperty("showRegistersInHex", showRegistersInHex);
     }
     
     public static void save() {

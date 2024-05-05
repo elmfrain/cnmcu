@@ -67,6 +67,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     private boolean showUpdates = false;
     private boolean showToolchainSettings = false;
     private boolean shouldLoadDefaults = false;
+    private boolean showRegistersInHex = Config.showRegistersInHex();
 
     public IDEScreen(IDEScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -247,37 +248,48 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             showToolchainSettings = false;
         }
 
-        float centerX = UIRender.getWindowWidth() / 2;
-        float centerY = UIRender.getWindowHeight() / 2;
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        float width = UIRender.getWindowWidth();
+        float height = UIRender.getWindowHeight();
+        float centerX = width / 2;
+        float centerY = height / 2;
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
         ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
         
         if (ImGui.beginPopupModal("About")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
             QuickReferences.genAbout();
             ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close")) 
                 ImGui.closeCurrentPopup();
             ImGui.endPopup();
         }
         
         
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
         ImGui.setNextWindowSize(800, 400, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
 
         if (ImGui.beginPopupModal("Documentation")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
             QuickReferences.genNanoDocumentation();
             ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
             ImGui.endPopup();
         }
         
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
         ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
         
         if (ImGui.beginPopupModal("Updates")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
             QuickReferences.genUpdates();
             ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
             ImGui.sameLine();
@@ -286,12 +298,15 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.endPopup();
         }
         
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
         ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
         
         if (ImGui.beginPopupModal("Toolchain Settings")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
             Toolchain.genToolchainConfigUI();
             ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
             ImGui.pushStyleColor(ImGuiCol.Text, shouldLoadDefaults ? 0xFF5555FF : 0xFFFFFFFF);
@@ -387,11 +402,18 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             return;
         }
 
-        ImGui.checkbox("Registers in Hex", true);
+        if (ImGui.checkbox("Registers in Hex", showRegistersInHex))
+            showRegistersInHex = !showRegistersInHex;
 
-        ImGui.text(String.format("A: 0x%02X", cpuStatus.A));
-        ImGui.text(String.format("X: 0x%02X", cpuStatus.X));
-        ImGui.text(String.format("Y: 0x%02X", cpuStatus.Y));
+        if (showRegistersInHex) {
+            ImGui.text(String.format("A: 0x%02X", cpuStatus.A));
+            ImGui.text(String.format("X: 0x%02X", cpuStatus.X));
+            ImGui.text(String.format("Y: 0x%02X", cpuStatus.Y));
+        } else {
+            ImGui.text(String.format("A: %d", cpuStatus.A));
+            ImGui.text(String.format("X: %d", cpuStatus.X));
+            ImGui.text(String.format("Y: %d", cpuStatus.Y));
+        }
 
         ImGui.text(String.format("PC: 0x%04X", cpuStatus.PC));
         ImGui.text(String.format("SP: 0x%02X", cpuStatus.SP));
@@ -453,6 +475,8 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
     @Override
     public void removed() {
+        Config.setShowRegistersInHex(showRegistersInHex);
+        Config.save();
         Toolchain.saveConfig();
         Toolchain.clearBuildStdout();
 
