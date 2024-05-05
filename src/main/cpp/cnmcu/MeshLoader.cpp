@@ -52,7 +52,7 @@ void MeshLoader::loadPLY(JNIEnv* env, const char* modelBuffer, size_t bufferSize
     if(plyData.hasElement("face") && plyData.getElement("face").hasProperty("vertex_indices"))
     {
         std::vector<std::vector<int>> faces = plyData.getElement("face").getListProperty<int>("vertex_indices");
-        jint numIndices = faces.size() * 4;
+        jint numIndices = static_cast<jint>(faces.size()) * 4;
         std::unique_ptr<int[]> buffer = std::make_unique<int[]>(numIndices);
 
         for(jint i = 0; i < faces.size(); i++)
