@@ -51,13 +51,13 @@ void MeshLoader::loadPLY(JNIEnv* env, const char* modelBuffer, size_t bufferSize
     // Get index data
     if(plyData.hasElement("face") && plyData.getElement("face").hasProperty("vertex_indices"))
     {
-        std::vector<std::vector<int>> faces = plyData.getElement("face").getListProperty<int>("vertex_indices");
+        std::vector<std::vector<unsigned int>> faces = plyData.getElement("face").getListProperty<unsigned int>("vertex_indices");
         jint numIndices = static_cast<jint>(faces.size()) * 4;
         std::unique_ptr<int[]> buffer = std::make_unique<int[]>(numIndices);
 
-        for(jint i = 0; i < faces.size(); i++)
+        for(int i = 0; i < faces.size(); i++)
         {
-            std::vector<int> face = faces[i];
+            std::vector<unsigned int>& face = faces[i];
 
             if(face.size() != 4)
             {
@@ -71,7 +71,7 @@ void MeshLoader::loadPLY(JNIEnv* env, const char* modelBuffer, size_t bufferSize
             buffer[i * 4 + 3] = face[3];
         }
 
-        jobject bytebuffer = env->NewDirectByteBuffer(buffer.get(), sizeof(int) * numIndices);
+        jobject bytebuffer = env->NewDirectByteBuffer(buffer.get(), sizeof(unsigned int) * numIndices);
         env->CallVoidMethod(mesh, cnmcuJava::Mesh_loadIndices, bytebuffer, numIndices);
         env->DeleteLocalRef(bytebuffer);
     }
