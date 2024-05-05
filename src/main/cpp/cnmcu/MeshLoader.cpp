@@ -45,7 +45,7 @@ void MeshLoader::loadPLY(JNIEnv* env, const char* modelBuffer, size_t bufferSize
     normals.reset();
 
     // Get color data
-    std::unique_ptr<float[]> colors = loadProperties(vertices, "r,g,b,a|red,green,blue,alpha", env, mesh, cnmcuJava::Mesh_loadColors);
+    std::unique_ptr<float[]> colors = loadColors(vertices, "r,g,b,a|red,green,blue,alpha", env, mesh, cnmcuJava::Mesh_loadColors);
     colors.reset();
 
     // Get index data
@@ -161,6 +161,52 @@ std::unique_ptr<float[]> MeshLoader::loadProperties(happly::Element& vertData, c
         for(jint i = 0; i < vertData.count; i++)
             for(int j = 0; j < index; j++)
                 buffer[i * index + j] = data[j][i];
+
+        jobject bytebuffer = env->NewDirectByteBuffer(buffer, sizeof(float) * vertData.count * index);
+        env->CallVoidMethod(mesh, method, bytebuffer, vertData.count);
+        env->DeleteLocalRef(bytebuffer);
+
+        return std::unique_ptr<float[]>(buffer);
+    }
+
+    return nullptr;
+}
+
+std::unique_ptr<float[]> MeshLoader::loadColors(happly::Element& vertData, const char* properites, JNIEnv* env, jobject mesh, jmethodID method)
+{
+    std::istringstream iss(properites);
+    std::string line;
+
+    while(std::getline(iss, line, '|'))
+    {
+        std::vector<uint8_t> data[4];
+        std::istringstream iss2(line);
+        int index = 0;
+        std::string properites[4];
+        std::string property;
+
+        while(std::getline(iss2, property, ','))
+        {
+            if(index >= 4 || !vertData.hasProperty(property))
+            {
+                index = 0;
+                break;
+            }
+
+            properites[index++] = property;
+        }
+
+        if(index == 0)
+            continue;
+
+        for(int i = 0; i < index; i++)
+            data[i] = vertData.getProperty<uint8_t>(properites[i]);
+
+        float* buffer = new float[vertData.count * index];
+
+        for(jint i = 0; i < vertData.count; i++)
+            for(int j = 0; j < index; j++)
+                buffer[i * index + j] = data[j][i] / 255.0f;
 
         jobject bytebuffer = env->NewDirectByteBuffer(buffer, sizeof(float) * vertData.count * index);
         env->CallVoidMethod(mesh, method, bytebuffer, vertData.count);

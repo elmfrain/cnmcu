@@ -22,4 +22,5 @@ public:
 private:
     static void genNormals(int numVertices, const float* positions, float* normals);
     static std::unique_ptr<float[]> loadProperties(happly::Element& vertData, const char* properties, JNIEnv* env, jobject mesh, jmethodID method);
+    static std::unique_ptr<float[]> loadColors(happly::Element& vertData, const char* properties, JNIEnv* env, jobject mesh, jmethodID method);
 };
