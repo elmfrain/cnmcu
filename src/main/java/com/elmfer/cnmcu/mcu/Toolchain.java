@@ -35,24 +35,39 @@ public class Toolchain {
 	private static StringBuffer buildStdout = new StringBuffer();
 
 	static {
-        try {
+        loadConfig();
+    }
+	
+	public static void loadConfig() {
+		try {
             BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILE));
 
             config = JsonParser.parseReader(reader).getAsJsonObject();
-            buildVariables = config.getAsJsonObject("buildVariables");
+            
+           	if(config.has("buildVariables"))
+           		buildVariables = config.getAsJsonObject("buildVariables");
+           	else
+           		loadDefaultBuildVariables();
+           	
+           	if(config.has("envVariables"))
+           		envVariables = config.getAsJsonObject("envVariables");
         } catch (Exception e) {
             loadDefaults();
             saveConfig();
         }
-    }
+	}
 	
 	public static void loadDefaults() {
 	    config.addProperty("buildCommand", getBuildCommand());
 	    config.addProperty("workingDirectory", TOOLCHAIN_PATH);
 	    buildVariables = new JsonObject();
-        buildVariables.addProperty("input", "temp/program.s");
-        buildVariables.addProperty("output", "temp/output.bin");
+	    loadDefaultBuildVariables();
         envVariables = new JsonObject();
+	}
+	
+	private static void loadDefaultBuildVariables() {
+		buildVariables.addProperty("input", "temp/program.s");
+        buildVariables.addProperty("output", "temp/output.bin");
 	}
 
 	public static CompletableFuture<byte[]> build(String code) {
@@ -242,7 +257,7 @@ public class Toolchain {
     }
     
     private static ImString newBuildVariableName = new ImString("", 64);
-    private static ImString buildVariablesInputs[] = new ImString[buildVariables.size()];
+    private static ImString buildVariablesInputs[] = new ImString[0];
     private static boolean showBuildVariableWarning = false;
     private static void genBuildVariables() {
         float windowWidth = ImGui.getContentRegionAvailX();
