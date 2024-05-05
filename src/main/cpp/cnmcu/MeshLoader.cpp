@@ -18,7 +18,7 @@ void MeshLoader::loadPLY(JNIEnv* env, const char* modelBuffer, size_t bufferSize
     }
 
     happly::Element& vertices = plyData.getElement("vertex");
-    jint numVertices = vertices.count;
+    jint numVertices = static_cast<jint>(vertices.count);
 
     // Get position data
     std::unique_ptr<float[]> positions = loadProperties(vertices, "x,y,z", env, mesh, cnmcuJava::Mesh_loadPositions);
