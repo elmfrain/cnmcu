@@ -400,7 +400,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         ImGui.text(String.format("Address: 0x%02X", busStatus.Address));
         ImGui.text(String.format("Data: 0x%02X", busStatus.Data));
-        ImGui.text(String.format("RW: %s", busStatus.RW ? "Read" : "Write"));
+        ImGui.text(String.format("RW: %s", !busStatus.RW ? "Read" : "Write"));
 
         ImGui.end();
     }
