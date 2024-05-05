@@ -146,6 +146,7 @@ public class ModSetup {
     public static void createDirectories() {
         try {
             Files.createDirectories(Paths.get(Toolchain.TOOLCHAIN_PATH));
+            Files.createDirectories(Paths.get(Toolchain.TEMP_PATH));
             Files.createDirectories(Paths.get(NativesLoader.BINARIES_PATH));
         } catch (IOException e) {
             e.printStackTrace();

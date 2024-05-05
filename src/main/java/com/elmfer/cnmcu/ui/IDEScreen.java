@@ -13,23 +13,23 @@ import com.elmfer.cnmcu.cpp.NativesUtils;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.network.IDEScreenHeartbeatC2SPacket;
 import com.elmfer.cnmcu.network.IDEScreenMCUControlC2SPacket;
+import com.elmfer.cnmcu.network.IDEScreenMCUControlC2SPacket.Control;
 import com.elmfer.cnmcu.network.IDEScreenSaveCodeC2SPacket;
 import com.elmfer.cnmcu.network.IDEScreenSyncS2CPacket.BusStatus;
 import com.elmfer.cnmcu.network.IDEScreenSyncS2CPacket.CPUStatus;
 import com.elmfer.cnmcu.network.UploadROMC2S2CPacket;
-import com.elmfer.cnmcu.network.IDEScreenMCUControlC2SPacket.Control;
 import com.elmfer.cnmcu.ui.handler.IDEScreenHandler;
 
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.extension.memedit.MemoryEditor;
 import imgui.extension.texteditor.TextEditor;
+import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiDockNodeFlags;
 import imgui.flag.ImGuiFocusedFlags;
 import imgui.flag.ImGuiStyleVar;
 import imgui.flag.ImGuiWindowFlags;
-import imgui.type.ImString;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -45,7 +45,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
     private TextEditor textEditor;
     private MemoryEditor memoryEditor;
-    private ImString buildCommand = new ImString(Toolchain.getBuildCommand());
     private IDEScreenHandler handler;
 
     private boolean saved = true;
@@ -66,6 +65,8 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     private boolean showAbout = false;
     private boolean showDocs = false;
     private boolean showUpdates = false;
+    private boolean showToolchainSettings = false;
+    private boolean shouldLoadDefaults = false;
 
     public IDEScreen(IDEScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -73,7 +74,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         textEditor = new TextEditor();
         memoryEditor = new MemoryEditor();
         heartbeatPacket = new IDEScreenHeartbeatC2SPacket(handler.getMcuID());
-        buildCommand.resize(1024);
 
         textEditor.setText(handler.getCode());
 
@@ -138,10 +138,8 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         if (ImGui.beginMenuBar()) {
             if (ImGui.beginMenu("File")) {
-                if (ImGui.menuItem("Save", "CTRL+S")) {
-                    saved = true;
-                    new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
-                }
+                if (ImGui.menuItem("Save", "CTRL+S"))
+                    save();
 
                 ImGui.endMenu();
             }
@@ -168,10 +166,12 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             }
 
             if (ImGui.beginMenu("Tools")) {
-                if (ImGui.menuItem("Compile")) {
-                }
-                if (ImGui.menuItem("Upload")) {
-                }
+                if (ImGui.menuItem("Build"))
+                    build();
+                if (ImGui.menuItem("Upload"))
+                    upload();
+                if (ImGui.menuItem("Settings"))
+                    showToolchainSettings = true;
                 ImGui.endMenu();
             }
 
@@ -188,31 +188,15 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.endMenuBar();
         }
 
-        if (ctrlKeyCombo('S')) {
-            saved = true;
-            new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
-        }
+        if (ctrlKeyCombo('S'))
+            save();
 
         ImGui.beginDisabled(shouldUpload || compileFuture != null);
-        if (ImGui.button("Build")) {
-            saved = true;
-            new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
-
-            Toolchain.clearBuildOutput();
-            compileFuture = Toolchain.build(textEditor.getText());
-        }
+        if (ImGui.button("Build"))
+            build();
         ImGui.sameLine();
-        if (ImGui.button("Upload")) {
-            saved = true;
-            new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
-
-            Toolchain.clearBuildOutput();
-            compileFuture = Toolchain.build(textEditor.getText());
-            shouldUpload = true;
-        }
-        ImGui.sameLine();
-        if (ImGui.inputText("##", buildCommand))
-            Toolchain.setBuildCommand(buildCommand.get());
+        if (ImGui.button("Upload"))
+            upload();
         ImGui.endDisabled();
 
         if (compileFuture != null && compileFuture.isDone() && !shouldUpload)
@@ -228,12 +212,12 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         }
 
         if (uploadPacket != null && uploadPacket.isReady()) {
-            Toolchain.appendBuildOutput("Upload", uploadPacket.message);
+            Toolchain.appendBuildStdout("Upload", uploadPacket.message);
             uploadPacket = null;
             shouldUpload = false;
         }
 
-        ImGui.text(String.format("program.s %s", saved ? "[Saved]" : "[Unsaved]"));
+        ImGui.text(String.format("%s %s", Toolchain.getBuildVariable("input"),  saved ? "[Saved]" : "[Unsaved]"));
         ImGui.setNextWindowSize(0, 400);
         textEditor.render("TextEditor");
 
@@ -256,6 +240,11 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         if (showUpdates) {
             ImGui.openPopup("Updates");
             showUpdates = false;
+        }
+        
+        if (showToolchainSettings) {
+            ImGui.openPopup("Toolchain Settings");
+            showToolchainSettings = false;
         }
 
         float centerX = UIRender.getWindowWidth() / 2;
@@ -296,6 +285,25 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                 Config.setAdviseUpdates(!Config.adviseUpdates());
             ImGui.endPopup();
         }
+        
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Appearing, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
+        
+        if (ImGui.beginPopupModal("Toolchain Settings")) {
+            Toolchain.genToolchainConfigUI();
+            ImGui.newLine();
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.pushStyleColor(ImGuiCol.Text, shouldLoadDefaults ? 0xFF5555FF : 0xFFFFFFFF);
+            ImGui.sameLine();
+            if (ImGui.button(!shouldLoadDefaults ? "Load Defaults" : "Are you sure?")) {
+                if (shouldLoadDefaults)
+                    Toolchain.loadDefaults();
+                shouldLoadDefaults = !shouldLoadDefaults;
+            }
+            ImGui.popStyleColor();
+            ImGui.endPopup();
+        }
 
         ImGui.end();
     }
@@ -309,11 +317,11 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         ImGui.text("Output");
         ImGui.sameLine();
         if (ImGui.button("Clear"))
-            Toolchain.clearBuildOutput();
+            Toolchain.clearBuildStdout();
         ImGui.separator();
 
         ImGui.beginChild("OutputBody");
-        ImGui.textWrapped(Toolchain.getBuildOutput());
+        ImGui.textWrapped(Toolchain.getBuildStdout());
         ImGui.endChild();
 
         ImGui.end();
@@ -410,6 +418,28 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             heartbeatPacket.send();
     }
 
+    private void build() {
+        saved = true;
+        new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+
+        Toolchain.clearBuildStdout();
+        compileFuture = Toolchain.build(textEditor.getText());
+    }
+    
+    private void upload() {
+        saved = true;
+        new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+
+        Toolchain.clearBuildStdout();
+        compileFuture = Toolchain.build(textEditor.getText());
+        shouldUpload = true;
+    }
+    
+    private void save() {
+        saved = true;
+        new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+    }
+    
     @Override
     public boolean shouldPause() {
         return false;
@@ -424,7 +454,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     @Override
     public void removed() {
         Toolchain.saveConfig();
-        Toolchain.clearBuildOutput();
+        Toolchain.clearBuildStdout();
 
         if (compileFuture != null)
             compileFuture.cancel(true);
