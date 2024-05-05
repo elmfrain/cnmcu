@@ -50,7 +50,6 @@ public class CNnanoModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     private static Sprite particleSprite;
 
-    private boolean hasBaked = false;
     private Mesh northMesh;
     private Mesh southMesh;
     private Mesh westMesh;
@@ -108,10 +107,6 @@ public class CNnanoModel implements UnbakedModel, BakedModel, FabricBakedModel {
     @Override
     public BakedModel bake(Baker baker, Function<SpriteIdentifier, Sprite> textureGetter,
             ModelBakeSettings rotationContainer, Identifier modelID) {
-        if (hasBaked) {
-            return this;
-        }
-
         Sprite pcbSprite = particleSprite = textureGetter.apply(SPRITE_PCB);
         Sprite smdSprite = textureGetter.apply(SPRITE_SMD);
 
@@ -144,7 +139,6 @@ public class CNnanoModel implements UnbakedModel, BakedModel, FabricBakedModel {
         MeshBaker.outputFromMesh(smdMesh, emitter, smdSprite, transform);
         westMesh = builder.build();
 
-        hasBaked = true;
         return this;
     }
 
