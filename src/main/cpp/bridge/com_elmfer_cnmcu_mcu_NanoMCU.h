@@ -151,6 +151,14 @@ JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_RAM
 JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_ROM
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_elmfer_cnmcu_mcu_NanoMCU
+ * Method:    EL
+ * Signature: (J)Lcom/elmfer/cnmcu/mcu/modules/CNEL;
+ */
+JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_EL
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

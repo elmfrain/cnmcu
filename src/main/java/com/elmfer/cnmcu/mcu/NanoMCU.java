@@ -2,6 +2,8 @@ package com.elmfer.cnmcu.mcu;
 
 import com.elmfer.cnmcu.cpp.StrongNativeObject;
 import com.elmfer.cnmcu.mcu.cpu.MOS6502;
+import com.elmfer.cnmcu.mcu.modules.CNEL;
+import com.elmfer.cnmcu.mcu.modules.CNEL.EventType;
 import com.elmfer.cnmcu.mcu.modules.CNGPIO;
 import com.elmfer.cnmcu.mcu.modules.CNRAM;
 import com.elmfer.cnmcu.mcu.modules.CNROM;
@@ -21,6 +23,7 @@ public class NanoMCU extends StrongNativeObject {
     private CNGPIO gpio;
     private CNRAM ram;
     private CNROM rom;
+    private CNEL el;
 
     public NanoMCU() {
         setNativePtr(createMCU());
@@ -29,6 +32,7 @@ public class NanoMCU extends StrongNativeObject {
         gpio = GPIO(getNativePtr());
         ram = RAM(getNativePtr());
         rom = ROM(getNativePtr());
+        el = EL(getNativePtr());
     }
 
     public void tick() {
@@ -37,6 +41,7 @@ public class NanoMCU extends StrongNativeObject {
         inputs[2] = backInput;
         inputs[3] = leftInput;
 
+        el.triggerEvent(EventType.GAME_TICK);
         tick(getNativePtr(), inputs, outputs);
 
         frontOutputChanged = frontOutput != outputs[0];
@@ -111,24 +116,52 @@ public class NanoMCU extends StrongNativeObject {
         gpio.invalidateNativeObject();
         ram.invalidateNativeObject();
         rom.invalidateNativeObject();
+        el.invalidateNativeObject();
 
         deleteMCU(getNativePtr());
     }
 
+    /*
+     * Get the CPU of the MCU which is a MOS6502
+     */
     public MOS6502 getCPU() {
         return cpu;
     }
 
+    /*
+     * Get the GPIO of the MCU.
+     * 
+     * General Purpose Input/Output
+     */
     public CNGPIO getGPIO() {
         return gpio;
     }
 
+    /*
+     * Get the RAM of the MCU.
+     * 
+     * Random Access Memory
+     */
     public CNRAM getRAM() {
         return ram;
     }
 
+    /*
+     * Get the ROM of the MCU.
+     * 
+     * Read Only Memory
+     */
     public CNROM getROM() {
         return rom;
+    }
+    
+    /*
+     * Get the EL of the MCU.
+     * 
+     * Event Listener
+     */
+    public CNEL getEL() {
+        return el;
     }
     
     public void writeNbt(NbtCompound nbt) {
@@ -145,6 +178,7 @@ public class NanoMCU extends StrongNativeObject {
         ram.writeNbt(mcuNbt);
         gpio.writeNbt(mcuNbt);
         cpu.writeNbt(mcuNbt);
+        el.writeNbt(mcuNbt);
         
         nbt.put("mcu", mcuNbt);
     }
@@ -163,6 +197,7 @@ public class NanoMCU extends StrongNativeObject {
         ram.readNbt(mcuNbt);
         gpio.readNbt(mcuNbt);
         cpu.readNbt(mcuNbt);
+        el.readNbt(mcuNbt);
     }
 
     // @formatter:off
@@ -292,5 +327,12 @@ public class NanoMCU extends StrongNativeObject {
         CNROM<CodeNodeNano::ROM_SIZE>* rom = &nano->ROM();
         jobject romObj = env->NewObject(cnmcuJava::CNROM, cnmcuJava::CNROM_init, reinterpret_cast<jlong>(rom));
         return romObj;
+    */
+    
+    private static native CNEL EL(long ptr); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        CNEL<CodeNodeNano::EL_SIZE>* el = &nano->EL();
+        jobject elObj = env->NewObject(cnmcuJava::CNEL, cnmcuJava::CNEL_init, reinterpret_cast<jlong>(el));
+        return elObj;
     */
 }

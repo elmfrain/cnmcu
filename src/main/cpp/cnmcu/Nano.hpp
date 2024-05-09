@@ -1,9 +1,10 @@
 #pragma once
 
 #include <mos6502.h>
-#include "GPIO.hpp"
-#include "RAM.hpp"
-#include "ROM.hpp"
+#include "CNGPIO.hpp"
+#include "CNRAM.hpp"
+#include "CNROM.hpp"
+#include "CNEL.hpp"
 
 #define GAME_TICK_RATE 20 // 20 Hz
 
@@ -13,6 +14,7 @@ public:
     constexpr static size_t GPIO_NUM_PINS = 64; // Supports 64 pins, only 4 of which are used
     constexpr static size_t RAM_SIZE = 512; // 512 bytes
     constexpr static size_t ROM_SIZE = 8192; // 8 KB
+    constexpr static size_t EL_SIZE = 8; // 8 bytes
     constexpr static size_t CLOCK_FREQUENCY = GAME_TICK_RATE * 40; // 800 Hz
 
     CodeNodeNano();
@@ -38,11 +40,13 @@ public:
     CNGPIO<GPIO_NUM_PINS>& GPIO();
     CNRAM<RAM_SIZE>& RAM();
     CNROM<ROM_SIZE>& ROM();
+    CNEL<EL_SIZE>& EL();
 private:
     mos6502 cpu;
     CNGPIO<GPIO_NUM_PINS> gpio;
     CNRAM<RAM_SIZE> ram;
     CNROM<ROM_SIZE> rom;
+    CNEL<EL_SIZE> el;
     uint64_t cyclesCounter;
     uint64_t cyclesTarget;
 

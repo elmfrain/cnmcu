@@ -45,6 +45,7 @@ void CodeNodeNano::reset()
     ram.reset();
     // rom.reset();
     gpio.reset();
+    el.reset();
     cpu.Reset();
     cyclesCounter = 0;
     cyclesTarget = 0;
@@ -92,6 +93,11 @@ CNROM<CodeNodeNano::ROM_SIZE>& CodeNodeNano::ROM()
     return rom;
 }
 
+CNEL<CodeNodeNano::EL_SIZE>& CodeNodeNano::EL()
+{
+    return el;
+}
+
 CodeNodeNano* CodeNodeNano::currentInstance = nullptr;
 
 uint8_t CodeNodeNano::read(uint16_t address)
@@ -111,6 +117,11 @@ uint8_t CodeNodeNano::read(uint16_t address)
     else if(0x7000 <= address && address < (0x7000 + currentInstance->gpio.size()))
     {
         currentInstance->m_busData = currentInstance->gpio.read(address - 0x7000);
+        return currentInstance->m_busData;
+    }
+    else if(0x7100 <= address && address < (0x7100 + currentInstance->el.size()))
+    {
+        currentInstance->m_busData = currentInstance->el.read(address - 0x7100);
         return currentInstance->m_busData;
     }
 
@@ -136,6 +147,11 @@ void CodeNodeNano::write(uint16_t address, uint8_t value)
         currentInstance->gpio.write(address - 0x7000, value);
         return;
     }
+    else if(0x7100 <= address && address < (0x7100 + currentInstance->el.size()))
+    {
+        currentInstance->el.write(address - 0x7100, value);
+        return;
+    }
 
     currentInstance->ram.write(address, value);
 }
@@ -146,6 +162,7 @@ void CodeNodeNano::cycle(mos6502* cpu)
         return;
 
     bool shouldInterrupt = currentInstance->gpio.shouldInterrupt();
+    shouldInterrupt |= currentInstance->el.shouldInterrupt();
 
     if(shouldInterrupt)
         cpu->IRQ();
