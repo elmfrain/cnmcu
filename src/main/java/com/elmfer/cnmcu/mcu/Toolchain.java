@@ -58,6 +58,8 @@ public class Toolchain {
 	}
 	
 	public static void loadDefaults() {
+	    config.remove("buildCommand");
+	    config.remove("workingDirectory");
 	    config.addProperty("buildCommand", getBuildCommand());
 	    config.addProperty("workingDirectory", TOOLCHAIN_PATH);
 	    buildVariables = new JsonObject();
