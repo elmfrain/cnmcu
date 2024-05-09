@@ -79,6 +79,9 @@ public:
     static jclass CNROM;
     static jmethodID CNROM_init;
 
+    static jclass CNEL;
+    static jmethodID CNEL_init;
+
     static bool initialized;
 
     static void init(JNIEnv* env);
