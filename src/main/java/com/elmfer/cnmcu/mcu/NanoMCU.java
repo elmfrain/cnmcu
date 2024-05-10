@@ -221,12 +221,13 @@ public class NanoMCU extends StrongNativeObject {
     private static native void tick(long ptr, int[] inputs, int[] outputs); /*
         CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
         
-        uint8_t* pvFront = nano->GPIO().pvFrontData();
-        uint8_t dir = *nano->GPIO().dirData();
-        bool frontPinIsInput = (dir & 0b0001) == 0;
-        bool rightPinIsInput = (dir & 0b0010) == 0;
-        bool backPinIsInput  = (dir & 0b0100) == 0;
-        bool leftPinIsInput  = (dir & 0b1000) == 0;
+        CNGPIO<CodeNodeNano::GPIO_NUM_PINS>& gpio = nano->GPIO();
+        uint8_t* pvFront = gpio.pvFrontData();
+        uint8_t* outputPinDrivers = nano->pinOutputDrivers();
+        bool frontPinIsInput = gpio.isInput(0);
+        bool rightPinIsInput = gpio.isInput(1);
+        bool backPinIsInput  = gpio.isInput(2);
+        bool leftPinIsInput  = gpio.isInput(3);
         
         pvFront[0] = frontPinIsInput ? static_cast<uint8_t>(inputs[0]) : pvFront[0];
         pvFront[1] = rightPinIsInput ? static_cast<uint8_t>(inputs[1]) : pvFront[1];
@@ -235,10 +236,10 @@ public class NanoMCU extends StrongNativeObject {
         
         nano->tick();
         
-        outputs[0] = static_cast<jint>(frontPinIsInput ? 0 : pvFront[0]);
-        outputs[1] = static_cast<jint>(rightPinIsInput ? 0 : pvFront[1]);
-        outputs[2] = static_cast<jint>(backPinIsInput  ? 0 : pvFront[2]);
-        outputs[3] = static_cast<jint>(leftPinIsInput  ? 0 : pvFront[3]);
+        outputs[0] = static_cast<jint>(frontPinIsInput ? 0 : outputPinDrivers[0]);
+        outputs[1] = static_cast<jint>(rightPinIsInput ? 0 : outputPinDrivers[1]);
+        outputs[2] = static_cast<jint>(backPinIsInput  ? 0 : outputPinDrivers[2]);
+        outputs[3] = static_cast<jint>(leftPinIsInput  ? 0 : outputPinDrivers[3]);
     */
     
     private static native void cycle(long ptr); /*
