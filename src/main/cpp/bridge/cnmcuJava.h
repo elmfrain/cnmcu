@@ -82,6 +82,9 @@ public:
     static jclass CNEL;
     static jmethodID CNEL_init;
 
+    static jclass CNUART;
+    static jmethodID CNUART_init;
+
     static bool initialized;
 
     static void init(JNIEnv* env);

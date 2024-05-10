@@ -7,6 +7,7 @@ import com.elmfer.cnmcu.mcu.modules.CNEL.EventType;
 import com.elmfer.cnmcu.mcu.modules.CNGPIO;
 import com.elmfer.cnmcu.mcu.modules.CNRAM;
 import com.elmfer.cnmcu.mcu.modules.CNROM;
+import com.elmfer.cnmcu.mcu.modules.CNUART;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
@@ -24,6 +25,7 @@ public class NanoMCU extends StrongNativeObject {
     private CNRAM ram;
     private CNROM rom;
     private CNEL el;
+    private CNUART uart;
 
     public NanoMCU() {
         setNativePtr(createMCU());
@@ -33,6 +35,7 @@ public class NanoMCU extends StrongNativeObject {
         ram = RAM(getNativePtr());
         rom = ROM(getNativePtr());
         el = EL(getNativePtr());
+        uart = UART(getNativePtr());
     }
 
     public void tick() {
@@ -48,7 +51,7 @@ public class NanoMCU extends StrongNativeObject {
         rightOutputChanged = rightOutput != outputs[1];
         backOutputChanged = backOutput != outputs[2];
         leftOutputChanged = leftOutput != outputs[3];
-        
+
         frontOutput = outputs[0];
         rightOutput = outputs[1];
         backOutput = outputs[2];
@@ -69,7 +72,7 @@ public class NanoMCU extends StrongNativeObject {
             return false;
         }
     }
-    
+
     public void cycle() {
         cycle(getNativePtr());
     }
@@ -117,6 +120,7 @@ public class NanoMCU extends StrongNativeObject {
         ram.invalidateNativeObject();
         rom.invalidateNativeObject();
         el.invalidateNativeObject();
+        uart.invalidateNativeObject();
 
         deleteMCU(getNativePtr());
     }
@@ -154,7 +158,7 @@ public class NanoMCU extends StrongNativeObject {
     public CNROM getROM() {
         return rom;
     }
-    
+
     /*
      * Get the EL of the MCU.
      * 
@@ -163,10 +167,19 @@ public class NanoMCU extends StrongNativeObject {
     public CNEL getEL() {
         return el;
     }
-    
+
+    /*
+     * Get the UART of the MCU.
+     * 
+     * Universal Asynchronous Receiver-Transmitter
+     */
+    public CNUART getUART() {
+        return uart;
+    }
+
     public void writeNbt(NbtCompound nbt) {
         NbtCompound mcuNbt = new NbtCompound();
-        
+
         mcuNbt.putInt("frontOutput", frontOutput);
         mcuNbt.putInt("rightOutput", rightOutput);
         mcuNbt.putInt("backOutput", backOutput);
@@ -179,10 +192,11 @@ public class NanoMCU extends StrongNativeObject {
         gpio.writeNbt(mcuNbt);
         cpu.writeNbt(mcuNbt);
         el.writeNbt(mcuNbt);
-        
+        uart.writeNbt(mcuNbt);
+
         nbt.put("mcu", mcuNbt);
     }
-    
+
     public void readNbt(NbtCompound nbt) {
         NbtCompound mcuNbt = nbt.getCompound("mcu");
 
@@ -198,6 +212,7 @@ public class NanoMCU extends StrongNativeObject {
         gpio.readNbt(mcuNbt);
         cpu.readNbt(mcuNbt);
         el.readNbt(mcuNbt);
+        uart.readNbt(mcuNbt);
     }
 
     // @formatter:off
@@ -335,5 +350,12 @@ public class NanoMCU extends StrongNativeObject {
         CNEL<CodeNodeNano::EL_SIZE>* el = &nano->EL();
         jobject elObj = env->NewObject(cnmcuJava::CNEL, cnmcuJava::CNEL_init, reinterpret_cast<jlong>(el));
         return elObj;
+    */
+    
+    private static native CNUART UART(long ptr); /*
+        CodeNodeNano* nano = reinterpret_cast<CodeNodeNano*>(ptr);
+        CNUART* uart = &nano->UART();
+        jobject uartObj = env->NewObject(cnmcuJava::CNUART, cnmcuJava::CNUART_init, reinterpret_cast<jlong>(uart));
+        return uartObj;
     */
 }

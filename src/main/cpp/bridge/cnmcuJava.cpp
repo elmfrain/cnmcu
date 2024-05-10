@@ -45,6 +45,9 @@ jmethodID cnmcuJava::CNROM_init;
 jclass cnmcuJava::CNEL;
 jmethodID cnmcuJava::CNEL_init;
 
+jclass cnmcuJava::CNUART;
+jmethodID cnmcuJava::CNUART_init;
+
 bool cnmcuJava::initialized = false;
 
 void cnmcuJava::init(JNIEnv* env)
@@ -99,6 +102,9 @@ void cnmcuJava::init(JNIEnv* env)
 
     GET_CLASS(CNEL, "com/elmfer/cnmcu/mcu/modules/CNEL");
     GET_METHOD_ID(CNEL_init, CNEL, "<init>", "(J)V");
+
+    GET_CLASS(CNUART, "com/elmfer/cnmcu/mcu/modules/CNUART");
+    GET_METHOD_ID(CNUART_init, CNUART, "<init>", "(J)V");
 
     initialized = true;
 }
