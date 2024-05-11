@@ -24,6 +24,17 @@ public:
         IRQ             = 7
     };
 
+    enum CommandFlags : uint8_t
+    {
+        RX_INTERRUPT_ENABLE = 0,
+        TX_INTERRUPT_ENABLE = 1,
+        ECHO_ENABLE         = 2,
+        PARITY_ENABLE       = 3,
+        PARITY_TYPE         = 4,
+        RX_PIN_ENABLE       = 5,
+        TX_PIN_ENABLE       = 6
+    };
+
     constexpr static int STATUS_REG = 0;
     constexpr static int CONTROL_REG = 1;
     constexpr static int COMMAND_REG = 2;

@@ -159,6 +159,14 @@ JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_ROM
 JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_EL
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_elmfer_cnmcu_mcu_NanoMCU
+ * Method:    UART
+ * Signature: (J)Lcom/elmfer/cnmcu/mcu/modules/CNUART;
+ */
+JNIEXPORT jobject JNICALL Java_com_elmfer_cnmcu_mcu_NanoMCU_UART
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

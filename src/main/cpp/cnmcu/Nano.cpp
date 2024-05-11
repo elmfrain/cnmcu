@@ -110,6 +110,11 @@ CNEL<CodeNodeNano::EL_SIZE>& CodeNodeNano::EL()
     return el;
 }
 
+CNUART& CodeNodeNano::UART()
+{
+    return uart;
+}
+
 CodeNodeNano* CodeNodeNano::currentInstance = nullptr;
 
 uint8_t CodeNodeNano::read(uint16_t address)

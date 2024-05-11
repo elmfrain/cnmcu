@@ -13,7 +13,7 @@ void CNUART::reset()
 {
     memset(registers, 0, sizeof(registers));
     registers[STATUS_REG] = 1 << TX_BUFFER_EMPTY;
-    registers[CONTROL_REG] = 0b01110010; // 8 bites, 1 stop bit, no parity, 5 baud
+    registers[CONTROL_REG] = 0b01110011; // 1 stop bit, 8 bites, 10 baud
     registers[RX_PIN_REG] = 1;
     txOuput = 0;
     rxInput = 0;
@@ -38,14 +38,12 @@ void CNUART::tick()
 
 bool CNUART::shouldInterrupt() const
 {
-    bool interruptEnabled = registers[COMMAND_REG] & 0b00000011;
-
-    return interruptEnabled && (registers[STATUS_REG] & 0b10000000);
+    return registers[STATUS_REG] & (1 << IRQ);
 }
 
 int CNUART::txPin() const
 {
-    if(!(registers[COMMAND_REG] & 0b00100000))
+    if(!(registers[COMMAND_REG] & (1 << TX_PIN_ENABLE)))
         return -1;
 
     return registers[TX_PIN_REG];
@@ -53,7 +51,7 @@ int CNUART::txPin() const
 
 int CNUART::rxPin() const
 {
-    if(!(registers[COMMAND_REG] & 0b00010000))
+    if(!(registers[COMMAND_REG] & (1 << RX_PIN_ENABLE)))
         return -1;
 
     return registers[RX_PIN_REG];
@@ -163,27 +161,27 @@ int CNUART::frameLength() const
 
 bool CNUART::rxInterruptEnabled() const
 {
-    return registers[COMMAND_REG] & 0b00000001;
+    return registers[COMMAND_REG] & (1 << RX_INTERRUPT_ENABLE);
 }
 
 bool CNUART::txInterruptEnabled() const
 {
-    return registers[COMMAND_REG] & 0b00000010;
+    return registers[COMMAND_REG] & (1 << TX_INTERRUPT_ENABLE);
 }
 
 bool CNUART::echoEnabled() const
 {
-    return registers[COMMAND_REG] & 0b00000100;
+    return registers[COMMAND_REG] & (1 << ECHO_ENABLE);
 }
 
 bool CNUART::parityEnabled() const
 {
-    return registers[COMMAND_REG] & 0b00001000;
+    return registers[COMMAND_REG] & (1 << PARITY_ENABLE);
 }
 
 CNUART::ParityType CNUART::parityType() const
 {
-    return (ParityType)((registers[CONTROL_REG] & 0b00010000) >> 4);
+    return (ParityType)((registers[COMMAND_REG] & (1 << PARITY_TYPE)) >> PARITY_TYPE);
 }
 
 int CNUART::txIndex()
@@ -199,7 +197,8 @@ void CNUART::txIndexInc()
     {
         txi = 0;
         registers[STATUS_REG] |= 1 << TX_BUFFER_EMPTY;
-        registers[STATUS_REG] |= 1 << IRQ;
+        if(txInterruptEnabled())
+            registers[STATUS_REG] |= 1 << IRQ;
     }
     else if(txi == 1)
         registers[STATUS_REG] &= ~(1 << TX_BUFFER_EMPTY);
@@ -220,7 +219,9 @@ void CNUART::rxIndexInc()
     {
         rxi = 0;
         registers[STATUS_REG] |= 1 << RX_BUFFER_FULL;
-        registers[STATUS_REG] |= 1 << IRQ;
+        if(rxInterruptEnabled())
+            registers[STATUS_REG] |= 1 << IRQ;
+        
         if (echoEnabled())
         {
             bool isTxEmpty = registers[STATUS_REG] & (1 << TX_BUFFER_EMPTY);
@@ -321,6 +322,8 @@ void CNUART::doRx()
             if(parityBit != correctParity)
                 registers[STATUS_REG] |= 1 << PARITY_ERROR;
         }
+        else if(rxInput != 0) // Stop bit must be 0 or it's a frame error
+            registers[STATUS_REG] |= 1 << FRAME_ERROR;
 
         rxIndexInc();
     }
