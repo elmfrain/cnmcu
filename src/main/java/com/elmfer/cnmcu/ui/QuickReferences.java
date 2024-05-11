@@ -474,6 +474,435 @@ public class QuickReferences {
                 ImGui.endTable();
             }
         }
+        
+        if (ImGui.collapsingHeader("EL (Event Listener)")) {
+            ImGui.text("The Event Listener allows for the microcontroller to listen to Minecraft events.");
+            ImGui.text("Currently, the module is only used for notifying game ticks.");
+            ImGui.text("Register Table");
+            
+            if (ImGui.beginTable("EL", 4, ImGuiTableFlags.Borders)) {
+                ImGui.tableSetupColumn("Address");
+                ImGui.tableSetupColumn("Name");
+                ImGui.tableSetupColumn("Description");
+                ImGui.tableSetupColumn("Read/Write");
+                ImGui.tableHeadersRow();
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7100");
+                ImGui.tableNextColumn();
+                ImGui.text("ELICL");
+                ImGui.tableNextColumn();
+                ImGui.text("Interrupt Control");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7108");
+                ImGui.tableNextColumn();
+                ImGui.text("ELIFL");
+                ImGui.tableNextColumn();
+                ImGui.text("Interrupt Flag");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                ImGui.endTable();
+            }
+            
+            ImGui.newLine();
+            ImGui.text("ELICL Register - (N/U - Not Used)");
+            ImGui.text("If the bit of the corresponding event is set, the interrupt is enabled.");
+            ImGui.newLine();
+            
+            if (ImGui.beginTable("ELICL", 8, ImGuiTableFlags.Borders)) {
+                ImGui.tableSetupColumn("Bit 7");
+                ImGui.tableSetupColumn("6");
+                ImGui.tableSetupColumn("5");
+                ImGui.tableSetupColumn("4");
+                ImGui.tableSetupColumn("3");
+                ImGui.tableSetupColumn("2");
+                ImGui.tableSetupColumn("1");
+                ImGui.tableSetupColumn("0");
+                ImGui.tableHeadersRow();
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("Game Tick");
+                
+                
+                ImGui.endTable();
+            }
+            
+            ImGui.newLine();
+            ImGui.text("ELIFL Register - (N/U - Not Used)");
+            ImGui.text("If the bit of the corresponding event is set, the event has occurred.");
+            ImGui.text("Write to clear the flag, it does not automatically clear.");
+            ImGui.newLine();
+            
+            if (ImGui.beginTable("ELIFL", 8, ImGuiTableFlags.Borders)) {
+                ImGui.tableSetupColumn("Bit 7");
+                ImGui.tableSetupColumn("6");
+                ImGui.tableSetupColumn("5");
+                ImGui.tableSetupColumn("4");
+                ImGui.tableSetupColumn("3");
+                ImGui.tableSetupColumn("2");
+                ImGui.tableSetupColumn("1");
+                ImGui.tableSetupColumn("0");
+                ImGui.tableHeadersRow();
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("Game Tick");
+                
+                ImGui.endTable();
+            }
+        }
+        
+        if (ImGui.collapsingHeader("UART (Universal Asynchronous Receiver/Transmitter)")) {
+            ImGui.text("The UART module allows for serial communication between microcontrollers.");
+            ImGui.text("This mostly follows the same design as the 6551 ACIA.");
+            ImGui.newLine();
+            ImGui.text("Register Table");
+            
+            if (ImGui.beginTable("UART", 4, ImGuiTableFlags.Borders)) {
+                ImGui.tableSetupColumn("Address");
+                ImGui.tableSetupColumn("Name");
+                ImGui.tableSetupColumn("Description");
+                ImGui.tableSetupColumn("Read/Write");
+                ImGui.tableHeadersRow();
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7200");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTSTS");
+                ImGui.tableNextColumn();
+                ImGui.text("Status Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R");
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7201");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTCTL");
+                ImGui.tableNextColumn();
+                ImGui.text("Control Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7202");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTCMD");
+                ImGui.tableNextColumn();
+                ImGui.text("Command Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7203");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTTXD");
+                ImGui.tableNextColumn();
+                ImGui.text("Transmit Data Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7204");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTRXD");
+                ImGui.tableNextColumn();
+                ImGui.text("Receive Data Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7205");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTTXP");
+                ImGui.tableNextColumn();
+                ImGui.text("TX Pin Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+                
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.textColored(0xFF00FF00, "$7206");
+                ImGui.tableNextColumn();
+                ImGui.text("UARTRXP");
+                ImGui.tableNextColumn();
+                ImGui.text("RX Pin Register");
+                ImGui.tableNextColumn();
+                ImGui.text("R/W");
+
+                ImGui.endTable();
+                
+                ImGui.newLine();
+                ImGui.text("UARTSTS Register");
+                ImGui.newLine();
+                
+                if (ImGui.beginTable("UARTSTS", 8, ImGuiTableFlags.Borders)) {
+                    ImGui.tableSetupColumn("Bit 7");
+                    ImGui.tableSetupColumn("6");
+                    ImGui.tableSetupColumn("5");
+                    ImGui.tableSetupColumn("4");
+                    ImGui.tableSetupColumn("3");
+                    ImGui.tableSetupColumn("2");
+                    ImGui.tableSetupColumn("1");
+                    ImGui.tableSetupColumn("0");
+                    ImGui.tableHeadersRow();
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.text("IRQ");
+                    ImGui.tableNextColumn();
+                    ImGui.text("N/U");
+                    ImGui.tableNextColumn();
+                    ImGui.text("N/U");
+                    ImGui.tableNextColumn();
+                    ImGui.text("TX Empty");
+                    ImGui.tableNextColumn();
+                    ImGui.text("RX Full");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Overrun Error");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Frame Error");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Parity Error");
+                    
+                    ImGui.endTable();
+                }
+                
+                ImGui.newLine();
+                ImGui.text("UARTCTL Register");
+                ImGui.text("Configure module's baud rate, word length, and stop bit.");
+                ImGui.textColored(0xFF00FF00, "Two microcontrollers must have the same settings to communicate.");
+                ImGui.newLine();
+                
+                if (ImGui.beginTable("UARTCTL", 3, ImGuiTableFlags.Borders)) {
+                    ImGui.tableSetupColumn("Bit 7");
+                    ImGui.tableSetupColumn("6 - 4 (WRDLEN)");
+                    ImGui.tableSetupColumn("3 - 0");
+                    ImGui.tableHeadersRow();
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.text("Stop Bit");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Word Length");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Baud Rate");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.text("1 - 2 Stop Bits");
+                    ImGui.tableNextColumn();
+                    ImGui.text("1 - 8 Bits (WRDLEN + 1)");
+                    ImGui.tableNextColumn();
+                    ImGui.text("Reference Baud Rate Table");
+                    
+                    ImGui.endTable();
+                }
+                
+                ImGui.newLine();
+                ImGui.text("Baud Rate Table");
+                ImGui.newLine();
+                
+                if (ImGui.beginTable("BaudRate", 2, ImGuiTableFlags.Borders)) {
+                    ImGui.tableSetupColumn("Value");
+                    ImGui.tableSetupColumn("Baud Rate");
+                    ImGui.tableHeadersRow();
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$0");
+                    ImGui.tableNextColumn();
+                    ImGui.text("1");
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$1");
+                    ImGui.tableNextColumn();
+                    ImGui.text("2");
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$2");
+                    ImGui.tableNextColumn();
+                    ImGui.text("5");
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$3");
+                    ImGui.tableNextColumn();
+                    ImGui.text("10");
+
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$4");
+                    ImGui.tableNextColumn();
+                    ImGui.text("20");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$5");
+                    ImGui.tableNextColumn();
+                    ImGui.text("50");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$6");
+                    ImGui.tableNextColumn();
+                    ImGui.text("150");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$7");
+                    ImGui.tableNextColumn();
+                    ImGui.text("300");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$8");
+                    ImGui.tableNextColumn();
+                    ImGui.text("600");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$9");
+                    ImGui.tableNextColumn();
+                    ImGui.text("1200");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$A");
+                    ImGui.tableNextColumn();
+                    ImGui.text("1800");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$B");
+                    ImGui.tableNextColumn();
+                    ImGui.text("2400");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$C");
+                    ImGui.tableNextColumn();
+                    ImGui.text("3600");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$D");
+                    ImGui.tableNextColumn();
+                    ImGui.text("4800");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$E");
+                    ImGui.tableNextColumn();
+                    ImGui.text("7200");
+                    
+                    ImGui.tableNextRow();
+                    ImGui.tableNextColumn();
+                    ImGui.textColored(0xFF00FF00, "$F");
+                    ImGui.tableNextColumn();
+                    ImGui.text("9600");
+
+                    ImGui.endTable();
+                }
+            }
+            
+            ImGui.newLine();
+            ImGui.text("UARTCMD Register");
+            ImGui.text("Configure how module deals with data.");
+            ImGui.text("TX Pin Enable: Pin must be set to output in GPIODIR0 register.");
+            ImGui.text("If TX Pin Enable is set, the module will output data to the pin, overriding the GPIO module.");
+            ImGui.text("RX Pin Enable: Pin must be set to input in GPIODIR0 register.");
+            ImGui.textColored(0xFF00FF00, "Two microcontrollers must have the parity settings to communicate.");
+            ImGui.newLine();
+            
+            if (ImGui.beginTable("UARTCMD", 8, ImGuiTableFlags.Borders)) {
+                ImGui.tableSetupColumn("Bit 7");
+                ImGui.tableSetupColumn("6");
+                ImGui.tableSetupColumn("5");
+                ImGui.tableSetupColumn("4");
+                ImGui.tableSetupColumn("3");
+                ImGui.tableSetupColumn("2");
+                ImGui.tableSetupColumn("1");
+                ImGui.tableSetupColumn("0");
+                ImGui.tableHeadersRow();
+
+                ImGui.tableNextRow();
+                ImGui.tableNextColumn();
+                ImGui.text("N/U");
+                ImGui.tableNextColumn();
+                ImGui.text("TX Pin Enable");
+                ImGui.tableNextColumn();
+                ImGui.text("RX Pin Enable");
+                ImGui.tableNextColumn();
+                ImGui.text("Parity Type");
+                ImGui.tableNextColumn();
+                ImGui.text("Parity Enable");
+                ImGui.tableNextColumn();
+                ImGui.text("Echo Enable");
+                ImGui.tableNextColumn();
+                ImGui.text("TX Interrupts");
+                ImGui.tableNextColumn();
+                ImGui.text("RX Interrupts");
+                
+                ImGui.endTable();
+            }
+            
+            ImGui.newLine();
+            ImGui.text("UARTTXD Register");
+            ImGui.text("Write to start transmitting data. Causes overrun error if TX buffer is not empty.");
+            ImGui.newLine();
+            ImGui.text("UARTRXD Register");
+            ImGui.text("Read to get received data. Causes overrun error if RX buffer if a byte was not read in time.");
+            ImGui.newLine();
+            ImGui.text("UARTTXP Register");
+            ImGui.text("Set which pin is used for transmitting data.");
+            ImGui.newLine();
+            ImGui.text("UARTRXP Register");
+            ImGui.text("Set which pin is used for receiving data.");
+            
+            ImGui.textColored(0xFF00FF00, "More info is coming soon to the mod's official docs!");
+        }
 
         ImGui.newLine();
         ImGui.text("More Info");
