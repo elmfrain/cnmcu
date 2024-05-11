@@ -10,6 +10,7 @@ CodeNodeNano::CodeNodeNano()
     , poweredOn(false)
     , clockPaused(false)
 {
+    memset(pinOutputs, 0, GPIO_NUM_PINS);
 }
 
 void CodeNodeNano::tick()
@@ -22,8 +23,17 @@ void CodeNodeNano::tick()
     gpio.tickInterrupts();
     gpio.copyBuffers();
 
+    if (gpio.isInput(uart.rxPin()))
+        uart.rxIn(gpio.read(uart.rxPin())); // RX
+
+    uart.tick();
+
     currentInstance = this;
     cpu.Run(cyclesTarget - cyclesCounter, cyclesCounter);
+
+    memcpy(pinOutputs, gpio.pvFrontData(), GPIO_NUM_PINS);
+    if (!gpio.isInput(uart.txPin()))
+        pinOutputs[uart.txPin()] = uart.txOut(); // TX
 }
 
 void CodeNodeNano::cycle()
@@ -46,6 +56,8 @@ void CodeNodeNano::reset()
     // rom.reset();
     gpio.reset();
     el.reset();
+    uart.reset();
+    memset(pinOutputs, 0, GPIO_NUM_PINS);
     cpu.Reset();
     cyclesCounter = 0;
     cyclesTarget = 0;
@@ -98,6 +110,11 @@ CNEL<CodeNodeNano::EL_SIZE>& CodeNodeNano::EL()
     return el;
 }
 
+CNUART& CodeNodeNano::UART()
+{
+    return uart;
+}
+
 CodeNodeNano* CodeNodeNano::currentInstance = nullptr;
 
 uint8_t CodeNodeNano::read(uint16_t address)
@@ -122,6 +139,11 @@ uint8_t CodeNodeNano::read(uint16_t address)
     else if(0x7100 <= address && address < (0x7100 + currentInstance->el.size()))
     {
         currentInstance->m_busData = currentInstance->el.read(address - 0x7100);
+        return currentInstance->m_busData;
+    }
+    else if(0x7200 <= address && address < (0x7200 + currentInstance->uart.size()))
+    {
+        currentInstance->m_busData = currentInstance->uart.read(address - 0x7200);
         return currentInstance->m_busData;
     }
 
@@ -152,6 +174,11 @@ void CodeNodeNano::write(uint16_t address, uint8_t value)
         currentInstance->el.write(address - 0x7100, value);
         return;
     }
+    else if(0x7200 <= address && address < (0x7200 + currentInstance->uart.size()))
+    {
+        currentInstance->uart.write(address - 0x7200, value);
+        return;
+    }
 
     currentInstance->ram.write(address, value);
 }
@@ -163,6 +190,7 @@ void CodeNodeNano::cycle(mos6502* cpu)
 
     bool shouldInterrupt = currentInstance->gpio.shouldInterrupt();
     shouldInterrupt |= currentInstance->el.shouldInterrupt();
+    shouldInterrupt |= currentInstance->uart.shouldInterrupt();
 
     if(shouldInterrupt)
         cpu->IRQ();

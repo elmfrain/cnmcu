@@ -114,6 +114,14 @@ public:
     uint8_t* intData() { return gpioint; }
     uint8_t* iflData() { return gpioifl; }
 
+    bool isInput(size_t pin) const
+    {
+        if(pin >= N || pin < 0)
+            return false;
+
+        return (gpiodir[pin / 8] & (1 << (pin % 8))) == 0;
+    }
+
     uint8_t read(uint16_t address) const
     {
         int buffer = mapAddress(&address);

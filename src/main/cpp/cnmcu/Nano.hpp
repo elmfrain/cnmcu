@@ -5,6 +5,7 @@
 #include "CNRAM.hpp"
 #include "CNROM.hpp"
 #include "CNEL.hpp"
+#include "CNUART.hpp"
 
 #define GAME_TICK_RATE 20 // 20 Hz
 
@@ -41,14 +42,18 @@ public:
     CNRAM<RAM_SIZE>& RAM();
     CNROM<ROM_SIZE>& ROM();
     CNEL<EL_SIZE>& EL();
+    CNUART& UART();
+    uint8_t* pinOutputDrivers() { return pinOutputs; }
 private:
     mos6502 cpu;
     CNGPIO<GPIO_NUM_PINS> gpio;
     CNRAM<RAM_SIZE> ram;
     CNROM<ROM_SIZE> rom;
     CNEL<EL_SIZE> el;
+    CNUART uart;
     uint64_t cyclesCounter;
     uint64_t cyclesTarget;
+    uint8_t pinOutputs[GPIO_NUM_PINS]; // "Pin output drivers"
 
     uint16_t m_busAddress;
     uint8_t m_busData;

@@ -82,10 +82,11 @@ public class CNnanoBlockEntity extends BlockEntity implements ExtendedScreenHand
         if(hasInit)
             return;
         
-        if (mcu == null)
-            mcu = new NanoMCU();
         uuid = UUID.randomUUID();
         SCREEN_UPDATES.put(uuid, new ScreenUpdates(this));
+        
+        if (mcu == null)
+            mcu = new NanoMCU();
         
         hasInit = true;
     }
