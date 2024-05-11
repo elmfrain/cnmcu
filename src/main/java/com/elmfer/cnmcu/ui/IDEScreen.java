@@ -372,7 +372,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         ImGui.text("RAM: 0.5KB");
         ImGui.text("ROM: 8KB");
         ImGui.text("Clock: 800Hz");
-        ImGui.text("Modules: GPIO, EL");
+        ImGui.text("Modules: GPIO, EL, UART");
 
         ImGui.text("Controls");
         ImGui.sameLine();
