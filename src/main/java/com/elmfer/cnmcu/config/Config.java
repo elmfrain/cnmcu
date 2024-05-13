@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
@@ -96,11 +97,16 @@ public class Config {
         if (config.has("lastSaveFilePath"))
             return config.get("lastSaveFilePath").getAsString();
 
-        return Sketches.SKETCHES_PATH + "/untitled.s";
+        return Paths.get(Sketches.SKETCHES_PATH, "untitled.s").toAbsolutePath().toString();
     }
     
     public static void setLastSaveFilePath(String lastSaveFilePath) {
-        config.addProperty("lastSaveFilePath", lastSaveFilePath);
+        try {
+        	String path = Paths.get(lastSaveFilePath).toAbsolutePath().toString();
+        	config.addProperty("lastSaveFilePath", path);
+        } catch (Exception e) {
+        	
+        }
     }
     
     public static void save() {
