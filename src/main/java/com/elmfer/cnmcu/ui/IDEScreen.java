@@ -10,6 +10,7 @@ import com.elmfer.cnmcu.EventHandler;
 import com.elmfer.cnmcu.animation.ClockTimer;
 import com.elmfer.cnmcu.config.Config;
 import com.elmfer.cnmcu.cpp.NativesUtils;
+import com.elmfer.cnmcu.mcu.Sketches;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.network.IDEScreenHeartbeatC2SPacket;
 import com.elmfer.cnmcu.network.IDEScreenMCUControlC2SPacket;
@@ -22,6 +23,7 @@ import com.elmfer.cnmcu.ui.handler.IDEScreenHandler;
 
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.memedit.MemoryEditor;
 import imgui.extension.texteditor.TextEditor;
 import imgui.flag.ImGuiCol;
@@ -65,6 +67,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     private boolean showAbout = false;
     private boolean showUpdates = false;
     private boolean showToolchainSettings = false;
+    private boolean showLoadBackup = false;
     private boolean shouldLoadDefaults = false;
     private boolean showRegistersInHex = Config.showRegistersInHex();
 
@@ -106,13 +109,14 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         genMainMenuBar();
         genTextEditor();
+        genPopups();
         genConsole();
         genMCUStatus();
         genCPUStatus();
         genMemoryViewer();
         if (Config.showDocs())
             genDocs();
-        
+
         ImGui.end();
 
         ImGui.render();
@@ -136,14 +140,21 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     private void genMainMenuBar() {
         if (!ImGui.beginMenuBar())
             return;
-        
+
         if (ImGui.beginMenu("File")) {
+            if (ImGui.menuItem("Load Backup##File"))
+                showLoadBackup = true;
+            if (ImGui.menuItem("Load File"))
+                ImGuiFileDialog.openModal("##LoadSketchFile", "Load File", ".s,.asm,.c,.cpp", Config.lastSaveFilePath(), 1, 0, 0);
+            ImGui.separator();
             if (ImGui.menuItem("Save", "CTRL+S"))
                 save();
+            if (ImGui.menuItem("Save As"))
+                ImGuiFileDialog.openModal("##SaveSketchFile", "Save As", ".s,.asm,.c,.cpp", Config.lastSaveFilePath(), 1, 0, 0);   
 
             ImGui.endMenu();
         }
-        
+
         if (ImGui.beginMenu("Edit")) {
             if (ImGui.menuItem("Undo", "CTRL+Z"))
                 textEditor.undo(1);
@@ -158,13 +169,13 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                 textEditor.paste();
             ImGui.endMenu();
         }
-        
+
         if (ImGui.beginMenu("Select")) {
             if (ImGui.menuItem("Select All", "CTRL+A"))
                 textEditor.selectAll();
             ImGui.endMenu();
         }
-        
+
         if (ImGui.beginMenu("Tools")) {
             if (ImGui.menuItem("Build"))
                 build();
@@ -174,7 +185,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                 showToolchainSettings = true;
             ImGui.endMenu();
         }
-        
+
         if (ImGui.beginMenu("Help")) {
             if (ImGui.menuItem("About"))
                 showAbout = true;
@@ -184,27 +195,154 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                 showUpdates = true;
             ImGui.endMenu();
         }
+    }
+
+    private void genPopups() {
+        if (showAbout) {
+            ImGui.openPopup("About");
+            showAbout = false;
+        }
+
+        if (showUpdates) {
+            ImGui.openPopup("Updates");
+            showUpdates = false;
+        }
+
+        if (showToolchainSettings) {
+            ImGui.openPopup("Toolchain Settings");
+            showToolchainSettings = false;
+        }
+
+        if (showLoadBackup) {
+            ImGui.openPopup("Load Backup");
+            Sketches.listBackups();
+            showLoadBackup = false;
+        }
+
+
+        float width = UIRender.getWindowWidth();
+        float height = UIRender.getWindowHeight();
+        float centerX = width / 2;
+        float centerY = height / 2;
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
         
+        if (ImGuiFileDialog.display("##LoadSketchFile", 0, 0, 0, width, height)) {
+            if (ImGuiFileDialog.isOk()) {
+                Sketches.saveBackup(textEditor.getText());
+                String filePath = ImGuiFileDialog.getFilePathName();
+                if (filePath == null || filePath.isEmpty())
+                    return;
+                Config.setLastSaveFilePath(filePath);
+                textEditor.setText(Sketches.loadSketch(filePath));
+                save();
+            }
+            ImGuiFileDialog.close();
+        }
+        
+        if (ImGuiFileDialog.display("##SaveSketchFile", 0, 0, 0, width, height)) {
+            if (ImGuiFileDialog.isOk()) {
+                String filePath = ImGuiFileDialog.getFilePathName();
+                if (filePath == null || filePath.isEmpty())
+                    return;
+                Config.setLastSaveFilePath(filePath);
+                Sketches.saveSketch(textEditor.getText(), filePath);
+                save();
+            }
+            ImGuiFileDialog.close();
+        }
+
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
+        if (ImGui.beginPopupModal("About")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
+            QuickReferences.genAbout();
+            ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.endPopup();
+        }
+
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
+        if (ImGui.beginPopupModal("Updates")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
+            QuickReferences.genUpdates();
+            ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.sameLine();
+            if (ImGui.checkbox("Notify me of updates", Config.adviseUpdates()))
+                Config.setAdviseUpdates(!Config.adviseUpdates());
+            ImGui.endPopup();
+        }
+
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
+        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
+        if (ImGui.beginPopupModal("Toolchain Settings")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
+            Toolchain.genToolchainConfigUI();
+            ImGui.newLine();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.sameLine();
+            if (ImGui.button("Refresh"))
+                Toolchain.loadConfig();
+            ImGui.pushStyleColor(ImGuiCol.Text, shouldLoadDefaults ? 0xFF5555FF : 0xFFFFFFFF);
+            ImGui.sameLine();
+            if (ImGui.button(!shouldLoadDefaults ? "Load Defaults" : "Are you sure?")) {
+                if (shouldLoadDefaults)
+                    Toolchain.loadDefaults();
+                shouldLoadDefaults = !shouldLoadDefaults;
+            }
+            ImGui.popStyleColor();
+            ImGui.endPopup();
+        }
+
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 400, ImGuiCond.Once);
+        if (ImGui.beginPopupModal("Load Backup")) {
+            float windowHeight = ImGui.getContentRegionAvailY();
+            ImGui.beginChild("####SketchBackups", 0, windowHeight - 30, false);
+            Sketches.genLoadBackupUI();
+            ImGui.endChild();
+            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
+            if (ImGui.button("Close"))
+                ImGui.closeCurrentPopup();
+            ImGui.sameLine();
+            if (ImGui.button("Load")) {
+                ImGui.closeCurrentPopup();
+                textEditor.setText(Sketches.getSelectedBackup());
+            }
+            ImGui.endPopup();
+        }
+
         ImGui.endMenuBar();
     }
-    
+
     private void genDocs() {
         float centerX = UIRender.getWindowWidth() / 2;
         float centerY = UIRender.getWindowHeight() / 2;
-        
+
         ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.FirstUseEver, 0.5f, 0.5f);
         ImGui.setNextWindowSize(800, 400, ImGuiCond.FirstUseEver);
-        
-        if(!ImGui.begin("Documentation")) {
+
+        if (!ImGui.begin("Documentation")) {
             ImGui.end();
             return;
         }
-        
+
         QuickReferences.genNanoDocumentation();
-        
+
         ImGui.end();
     }
-    
+
     private void genTextEditor() {
         if (!ImGui.begin(CODE_EDITOR_NAME)) {
             ImGui.end();
@@ -240,7 +378,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             shouldUpload = false;
         }
 
-        ImGui.text(String.format("%s %s", Toolchain.getBuildVariable("input"),  saved ? "[Saved]" : "[Unsaved]"));
+        ImGui.text(String.format("%s %s", Toolchain.getBuildVariable("input"), saved ? "[Saved]" : "[Unsaved]"));
         ImGui.setNextWindowSize(0, 400);
         textEditor.render("TextEditor");
 
@@ -249,81 +387,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         if (textEditor.isTextChanged())
             saved = false;
-
-        if (showAbout) {
-            ImGui.openPopup("About");
-            showAbout = false;
-        }
-        
-        if (showUpdates) {
-            ImGui.openPopup("Updates");
-            showUpdates = false;
-        }
-        
-        if (showToolchainSettings) {
-            ImGui.openPopup("Toolchain Settings");
-            showToolchainSettings = false;
-        }
-
-        float width = UIRender.getWindowWidth();
-        float height = UIRender.getWindowHeight();
-        float centerX = width / 2;
-        float centerY = height / 2;
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
-        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
-        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
-        
-        if (ImGui.beginPopupModal("About")) {
-            float windowHeight = ImGui.getContentRegionAvailY();
-            QuickReferences.genAbout();
-            ImGui.newLine();
-            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
-            if (ImGui.button("Close")) 
-                ImGui.closeCurrentPopup();
-            ImGui.endPopup();
-        }
-        
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
-        ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
-        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
-        
-        if (ImGui.beginPopupModal("Updates")) {
-            float windowHeight = ImGui.getContentRegionAvailY();
-            QuickReferences.genUpdates();
-            ImGui.newLine();
-            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
-            if (ImGui.button("Close"))
-                ImGui.closeCurrentPopup();
-            ImGui.sameLine();
-            if (ImGui.checkbox("Notify me of updates", Config.adviseUpdates()))
-                Config.setAdviseUpdates(!Config.adviseUpdates());
-            ImGui.endPopup();
-        }
-        
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
-        ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
-        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
-        
-        if (ImGui.beginPopupModal("Toolchain Settings")) {
-            float windowHeight = ImGui.getContentRegionAvailY();
-            Toolchain.genToolchainConfigUI();
-            ImGui.newLine();
-            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
-            if (ImGui.button("Close"))
-                ImGui.closeCurrentPopup();
-            ImGui.sameLine();
-            if (ImGui.button("Refresh"))
-            	Toolchain.loadConfig();
-            ImGui.pushStyleColor(ImGuiCol.Text, shouldLoadDefaults ? 0xFF5555FF : 0xFFFFFFFF);
-            ImGui.sameLine();
-            if (ImGui.button(!shouldLoadDefaults ? "Load Defaults" : "Are you sure?")) {
-                if (shouldLoadDefaults)
-                    Toolchain.loadDefaults();
-                shouldLoadDefaults = !shouldLoadDefaults;
-            }
-            ImGui.popStyleColor();
-            ImGui.endPopup();
-        }
 
         ImGui.end();
     }
@@ -446,27 +509,31 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     }
 
     private void build() {
-        saved = true;
-        new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+        save();
 
         Toolchain.clearBuildStdout();
         compileFuture = Toolchain.build(textEditor.getText());
     }
-    
+
     private void upload() {
-        saved = true;
-        new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+        save();
 
         Toolchain.clearBuildStdout();
         compileFuture = Toolchain.build(textEditor.getText());
         shouldUpload = true;
     }
-    
+
     private void save() {
+        if (saved || textEditor.getText().isEmpty())
+            return;
+        
         saved = true;
         new IDEScreenSaveCodeC2SPacket(textEditor.getText(), handler.getMcuID()).send();
+        
+        if (!textEditor.getText().isEmpty())
+            Sketches.saveBackup(textEditor.getText());
     }
-    
+
     @Override
     public boolean shouldPause() {
         return false;
@@ -480,6 +547,9 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
     @Override
     public void removed() {
+        if (!saved && !textEditor.getText().isEmpty())
+            Sketches.saveBackup(textEditor.getText());
+        
         Config.setShowRegistersInHex(showRegistersInHex);
         Config.save();
         Toolchain.saveConfig();

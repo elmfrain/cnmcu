@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
 import com.elmfer.cnmcu.cpp.NativesLoader;
+import com.elmfer.cnmcu.mcu.Sketches;
 import com.elmfer.cnmcu.mcu.Toolchain;
 import com.elmfer.cnmcu.util.HTTPSFetcher;
 import com.elmfer.cnmcu.util.ResourceLoader;
@@ -149,6 +150,7 @@ public class ModSetup {
             Files.createDirectories(Paths.get(Toolchain.TOOLCHAIN_PATH));
             Files.createDirectories(Paths.get(Toolchain.TEMP_PATH));
             Files.createDirectories(Paths.get(NativesLoader.BINARIES_PATH));
+            Files.createDirectories(Paths.get(Sketches.BACKUP_PATH));
         } catch (IOException e) {
             e.printStackTrace();
         }

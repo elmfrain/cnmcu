@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollers;
+import com.elmfer.cnmcu.mcu.Sketches;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -32,6 +33,8 @@ public class Config {
             config.addProperty("adviseUpdates", adviseUpdates());
             config.addProperty("showRegistersInHex", showRegistersInHex());
             config.addProperty("showDocs", showDocs());
+            config.addProperty("maxNumBackups", maxNumBackups());
+            config.addProperty("lastSaveFilePath", lastSaveFilePath());
             
             firstTimeUse = true;
             save();
@@ -76,6 +79,28 @@ public class Config {
     
     public static void setShowDocs(boolean showDocs) {
         config.addProperty("showDocs", showDocs);
+    }
+    
+    public static int maxNumBackups() {
+        if (config.has("maxNumBackups"))
+            return config.get("maxNumBackups").getAsInt();
+        
+        return 30;
+    }
+    
+    public static void setMaxNumBackups(int maxNumBackups) {
+        config.addProperty("maxNumBackups", maxNumBackups);
+    }
+    
+    public static String lastSaveFilePath() {
+        if (config.has("lastSaveFilePath"))
+            return config.get("lastSaveFilePath").getAsString();
+
+        return Sketches.SKETCHES_PATH + "/untitled.s";
+    }
+    
+    public static void setLastSaveFilePath(String lastSaveFilePath) {
+        config.addProperty("lastSaveFilePath", lastSaveFilePath);
     }
     
     public static void save() {
