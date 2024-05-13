@@ -106,7 +106,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         ImGui.begin(DOCKSPACE_NAME, windowFlags);
         ImGui.dockSpace(ImGui.getID(DOCKSPACE_NAME), 0, 0, ImGuiDockNodeFlags.PassthruCentralNode);
         ImGui.popStyleVar(3);
-
+        
         genMainMenuBar();
         genTextEditor();
         genPopups();
@@ -116,7 +116,10 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         genMemoryViewer();
         if (Config.showDocs())
             genDocs();
-
+        
+        if (ImGui.isWindowFocused(ImGuiFocusedFlags.RootAndChildWindows) && ImGui.isKeyPressed(GLFW.GLFW_KEY_ESCAPE))
+            ImGui.setWindowFocus(null);
+        
         ImGui.end();
 
         ImGui.render();
@@ -227,6 +230,18 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
         ImGui.setNextWindowSize(800, 322, ImGuiCond.Once);
         
+        if (ImGuiFileDialog.display("##SaveSketchFile", 0, 0, 0, width, height)) {
+            if (ImGuiFileDialog.isOk()) {
+                String filePath = ImGuiFileDialog.getFilePathName();
+                if (filePath == null || filePath.isEmpty())
+                    return;
+                Config.setLastSaveFilePath(filePath);
+                Sketches.saveSketch(textEditor.getText(), filePath);
+                save();
+            }
+            ImGuiFileDialog.close();
+        }
+        
         if (ImGuiFileDialog.display("##LoadSketchFile", 0, 0, 0, width, height)) {
             if (ImGuiFileDialog.isOk()) {
                 Sketches.saveBackup(textEditor.getText());
@@ -235,18 +250,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
                     return;
                 Config.setLastSaveFilePath(filePath);
                 textEditor.setText(Sketches.loadSketch(filePath));
-                save();
-            }
-            ImGuiFileDialog.close();
-        }
-        
-        if (ImGuiFileDialog.display("##SaveSketchFile", 0, 0, 0, width, height)) {
-            if (ImGuiFileDialog.isOk()) {
-                String filePath = ImGuiFileDialog.getFilePathName();
-                if (filePath == null || filePath.isEmpty())
-                    return;
-                Config.setLastSaveFilePath(filePath);
-                Sketches.saveSketch(textEditor.getText(), filePath);
                 save();
             }
             ImGuiFileDialog.close();
@@ -384,7 +387,7 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         if (ImGui.isWindowFocused(ImGuiFocusedFlags.RootAndChildWindows) && ImGui.isKeyPressed(GLFW.GLFW_KEY_ESCAPE))
             ImGui.setWindowFocus(null);
-
+        
         if (textEditor.isTextChanged())
             saved = false;
 
