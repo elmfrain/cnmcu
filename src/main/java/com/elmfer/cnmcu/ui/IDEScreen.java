@@ -63,7 +63,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
     private boolean shouldUpload = false;
 
     private boolean showAbout = false;
-    private boolean showDocs = false;
     private boolean showUpdates = false;
     private boolean showToolchainSettings = false;
     private boolean shouldLoadDefaults = false;
@@ -99,18 +98,21 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
 
         int windowFlags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove
                 | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus
-                | ImGuiWindowFlags.NoBackground;
+                | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.MenuBar;
 
         ImGui.begin(DOCKSPACE_NAME, windowFlags);
         ImGui.dockSpace(ImGui.getID(DOCKSPACE_NAME), 0, 0, ImGuiDockNodeFlags.PassthruCentralNode);
         ImGui.popStyleVar(3);
 
+        genMainMenuBar();
         genTextEditor();
         genConsole();
         genMCUStatus();
         genCPUStatus();
         genMemoryViewer();
-
+        if (Config.showDocs())
+            genDocs();
+        
         ImGui.end();
 
         ImGui.render();
@@ -131,62 +133,82 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
         return true;
     }
 
-    private void genTextEditor() {
-        if (!ImGui.begin(CODE_EDITOR_NAME, ImGuiWindowFlags.MenuBar)) {
+    private void genMainMenuBar() {
+        if (!ImGui.beginMenuBar())
+            return;
+        
+        if (ImGui.beginMenu("File")) {
+            if (ImGui.menuItem("Save", "CTRL+S"))
+                save();
+
+            ImGui.endMenu();
+        }
+        
+        if (ImGui.beginMenu("Edit")) {
+            if (ImGui.menuItem("Undo", "CTRL+Z"))
+                textEditor.undo(1);
+            if (ImGui.menuItem("Redo", "CTRL+Y"))
+                textEditor.redo(1);
+            ImGui.separator();
+            if (ImGui.menuItem("Cut", "CTRL+X"))
+                textEditor.cut();
+            if (ImGui.menuItem("Copy", "CTRL+C"))
+                textEditor.copy();
+            if (ImGui.menuItem("Paste", "CTRL+V"))
+                textEditor.paste();
+            ImGui.endMenu();
+        }
+        
+        if (ImGui.beginMenu("Select")) {
+            if (ImGui.menuItem("Select All", "CTRL+A"))
+                textEditor.selectAll();
+            ImGui.endMenu();
+        }
+        
+        if (ImGui.beginMenu("Tools")) {
+            if (ImGui.menuItem("Build"))
+                build();
+            if (ImGui.menuItem("Upload"))
+                upload();
+            if (ImGui.menuItem("Settings"))
+                showToolchainSettings = true;
+            ImGui.endMenu();
+        }
+        
+        if (ImGui.beginMenu("Help")) {
+            if (ImGui.menuItem("About"))
+                showAbout = true;
+            if (ImGui.menuItem((Config.showDocs() ? "Hide " : "Show ") + "Documentation"))
+                Config.setShowDocs(!Config.showDocs());
+            if (ImGui.menuItem("Updates"))
+                showUpdates = true;
+            ImGui.endMenu();
+        }
+        
+        ImGui.endMenuBar();
+    }
+    
+    private void genDocs() {
+        float centerX = UIRender.getWindowWidth() / 2;
+        float centerY = UIRender.getWindowHeight() / 2;
+        
+        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.FirstUseEver, 0.5f, 0.5f);
+        ImGui.setNextWindowSize(800, 400, ImGuiCond.FirstUseEver);
+        
+        if(!ImGui.begin("Documentation")) {
             ImGui.end();
             return;
         }
-
-        if (ImGui.beginMenuBar()) {
-            if (ImGui.beginMenu("File")) {
-                if (ImGui.menuItem("Save", "CTRL+S"))
-                    save();
-
-                ImGui.endMenu();
-            }
-
-            if (ImGui.beginMenu("Edit")) {
-                if (ImGui.menuItem("Undo", "CTRL+Z"))
-                    textEditor.undo(1);
-                if (ImGui.menuItem("Redo", "CTRL+Y"))
-                    textEditor.redo(1);
-                ImGui.separator();
-                if (ImGui.menuItem("Cut", "CTRL+X"))
-                    textEditor.cut();
-                if (ImGui.menuItem("Copy", "CTRL+C"))
-                    textEditor.copy();
-                if (ImGui.menuItem("Paste", "CTRL+V"))
-                    textEditor.paste();
-                ImGui.endMenu();
-            }
-
-            if (ImGui.beginMenu("Select")) {
-                if (ImGui.menuItem("Select All", "CTRL+A"))
-                    textEditor.selectAll();
-                ImGui.endMenu();
-            }
-
-            if (ImGui.beginMenu("Tools")) {
-                if (ImGui.menuItem("Build"))
-                    build();
-                if (ImGui.menuItem("Upload"))
-                    upload();
-                if (ImGui.menuItem("Settings"))
-                    showToolchainSettings = true;
-                ImGui.endMenu();
-            }
-
-            if (ImGui.beginMenu("Help")) {
-                if (ImGui.menuItem("About"))
-                    showAbout = true;
-                if (ImGui.menuItem("Documentation"))
-                    showDocs = true;
-                if (ImGui.menuItem("Updates"))
-                    showUpdates = true;
-                ImGui.endMenu();
-            }
-
-            ImGui.endMenuBar();
+        
+        QuickReferences.genNanoDocumentation();
+        
+        ImGui.end();
+    }
+    
+    private void genTextEditor() {
+        if (!ImGui.begin(CODE_EDITOR_NAME)) {
+            ImGui.end();
+            return;
         }
 
         if (ctrlKeyCombo('S'))
@@ -232,11 +254,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.openPopup("About");
             showAbout = false;
         }
-
-        if (showDocs) {
-            ImGui.openPopup("Documentation");
-            showDocs = false;
-        }
         
         if (showUpdates) {
             ImGui.openPopup("Updates");
@@ -262,21 +279,6 @@ public class IDEScreen extends HandledScreen<IDEScreenHandler> {
             ImGui.newLine();
             ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
             if (ImGui.button("Close")) 
-                ImGui.closeCurrentPopup();
-            ImGui.endPopup();
-        }
-        
-        
-        ImGui.setNextWindowPos(centerX, centerY, ImGuiCond.Always, 0.5f, 0.5f);
-        ImGui.setNextWindowSize(800, 400, ImGuiCond.Once);
-        ImGui.setNextWindowSizeConstraints(0, 0, width, height);
-
-        if (ImGui.beginPopupModal("Documentation")) {
-            float windowHeight = ImGui.getContentRegionAvailY();
-            QuickReferences.genNanoDocumentation();
-            ImGui.newLine();
-            ImGui.setCursorPosY(Math.max(windowHeight, ImGui.getCursorPosY()));
-            if (ImGui.button("Close"))
                 ImGui.closeCurrentPopup();
             ImGui.endPopup();
         }

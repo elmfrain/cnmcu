@@ -31,6 +31,7 @@ public class Config {
 
             config.addProperty("adviseUpdates", adviseUpdates());
             config.addProperty("showRegistersInHex", showRegistersInHex());
+            config.addProperty("showDocs", showDocs());
             
             firstTimeUse = true;
             save();
@@ -64,6 +65,17 @@ public class Config {
     
     public static void setShowRegistersInHex(boolean showRegistersInHex) {
         config.addProperty("showRegistersInHex", showRegistersInHex);
+    }
+    
+    public static boolean showDocs() {
+        if (config.has("showDocs"))
+            return config.get("showDocs").getAsBoolean();
+
+        return false;
+    }
+    
+    public static void setShowDocs(boolean showDocs) {
+        config.addProperty("showDocs", showDocs);
     }
     
     public static void save() {
