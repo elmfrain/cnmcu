@@ -54,7 +54,7 @@ public class EventHandler {
 
         io.setIniFilename(ModSetup.IMGUI_INI_FILE);
         io.setDisplaySize(client.getWindow().getWidth(), client.getWindow().getHeight());
-        io.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.NavEnableKeyboard);
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
     }
 
     private static void onClientStopping(MinecraftClient client) {
