@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.elmfer.cnmcu.CodeNodeMicrocontrollersClient;
-import com.elmfer.cnmcu.util.ResourceLoader;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
 public class Meshes {
@@ -33,7 +33,7 @@ public class Meshes {
     public static Mesh load(Identifier model) {
         try {
             // Load the model file
-            InputStream modelStream = ResourceLoader.getInputStream(model);
+            InputStream modelStream = MinecraftClient.getInstance().getResourceManager().getResource(model).get().getInputStream();
             byte[] modelData = modelStream.readAllBytes();
             modelStream.close();
             
