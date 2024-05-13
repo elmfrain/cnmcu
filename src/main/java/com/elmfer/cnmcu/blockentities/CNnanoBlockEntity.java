@@ -50,8 +50,11 @@ public class CNnanoBlockEntity extends BlockEntity implements ExtendedScreenHand
         int i = 0;
         for (Direction horizontal : HORIZONTALS) {
             Direction globalDir = CNnanoBlock.getGlobalDirection(blockDir, horizontal);
-            inputs[i] = world.getStrongRedstonePower(pos.offset(globalDir), globalDir.getOpposite());
-            inputs[i++] |= world.getEmittedRedstonePower(pos.offset(globalDir), globalDir.getOpposite());
+            BlockPos neighborPos = pos.offset(globalDir);
+            BlockState neighborState = world.getBlockState(neighborPos);
+            
+            inputs[i] = neighborState.getWeakRedstonePower(world, neighborPos, globalDir);
+            inputs[i++] |= world.getEmittedRedstonePower(neighborPos, globalDir);
         }
         
         blockEntity.mcu.frontInput = inputs[0];
