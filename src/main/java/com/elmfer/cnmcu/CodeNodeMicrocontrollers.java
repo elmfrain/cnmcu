@@ -18,7 +18,7 @@ public class CodeNodeMicrocontrollers implements ModInitializer {
 
     public static final String MOD_NAME = "CodeNode Microcontrollers";
     public static final String MOD_ID = "cnmcu";
-    public static final String MOD_VERSION = "0.0.9a-1.20.4";
+    public static final String MOD_VERSION = "0.0.10a-1.20.4";
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
