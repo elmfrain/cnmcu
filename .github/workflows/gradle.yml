@@ -15,6 +15,13 @@ permissions:
   contents: write
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
   build:
     strategy:
       matrix:
@@ -37,6 +44,7 @@ jobs:
               vasm/vobjdump-macos-x64
 
     runs-on: ${{ matrix.os }}
+    needs: validate
 
     steps:
       - name: Checkout Repository
