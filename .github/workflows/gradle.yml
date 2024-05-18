@@ -15,20 +15,43 @@ permissions:
   contents: write
 
 jobs:
-  Build-Publish-LinuxNatives:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            files: |
+              build/natives/libcnmcu*
+              vasm/vasm6502_oldstyle-linux-x64
+              vasm/vobjdump-linux-x64
+          - os: windows-latest
+            files: |
+              build/natives/Release/libcnmcu*
+              vasm/vasm6502_oldstyle-windows-x64.exe
+              vasm/vobjdump-windows-x64.exe
+              vasm/cygwin1.dll
+          - os: macos-latest
+            files: |
+              build/natives/libcnmcu*
+              vasm/vasm6502_oldstyle-macos-x64
+              vasm/vobjdump-macos-x64
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-
+      
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Save Version
         run: ./gradlew saveVersion --console=plain
@@ -63,71 +86,8 @@ jobs:
       - name: Compile Natives
         run: ./gradlew compileNatives --console=plain
 
-      - name: Upload Linux Binary
+      - name: Upload Binary
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            build/natives/libcnmcu*
-            vasm/vasm6502_oldstyle-linux-x64
-            vasm/vobjdump-linux-x64
-          tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
-  WindowsNatives:
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "temurin"
-          java-version: 17
-
-      - name: Save Version
-        run: ./gradlew saveVersion --console=plain
-
-      - name: Compile Natives
-        run: ./gradlew compileNatives --console=plain
-
-      - name: Upload Windows Binary
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            build/natives/Release/libcnmcu*
-            vasm/vasm6502_oldstyle-windows-x64.exe
-            vasm/vobjdump-windows-x64.exe
-            vasm/cygwin1.dll
-          tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
-
-  MacOSNatives:
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "temurin"
-          java-version: 17
-          
-      - name: Save Version
-        run: ./gradlew saveVersion --console=plain
-
-      - name: Compile Natives
-        run: ./gradlew compileNatives --console=plain
-
-      - name: Upload Macos Binary
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            build/natives/libcnmcu*
-            vasm/vasm6502_oldstyle-macos-x64
-            vasm/vobjdump-macos-x64
+          files: ${{ matrix.files }}
           tag_name: "${{ env.MOD_VERSION }}-${{ env.MINECRAFT_VERSION }}"
